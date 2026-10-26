@@ -1,0 +1,19 @@
+# Netlify の設定
+# public/ フォルダだけを公開します（dev/ や README.md は公開されません）。
+# ※ このファイルの設定は、Netlify 管理画面の Build settings より優先されます。
+
+[build]
+  publish = "public"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Service Worker は常に最新を取得させる（古い名称・案内が残らないようにする）
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

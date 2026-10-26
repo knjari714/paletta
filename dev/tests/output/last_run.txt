@@ -1,0 +1,28 @@
+== 学習機能（v0.3 からの回帰テスト） ==
+page errors: []
+226/226 passed
+== カード詳細からの戻り ==
+errors []
+16/16 passed
+== v0.4 追加分 ==
+page errors: []
+  files    4/4
+  pages    28/28
+  contact  8/8
+  names    11/11
+  howto    15/15
+  faq      2/2
+  a11y     1/1
+  terms    2/2
+  privacy  5/5
+  nojs     3/3
+  dark     7/7
+  logo     1/1
+  first    2/2
+  footer   4/4
+  data     1/1
+  export   2/2
+  compat   1/1
+  pwa      6/6
+  offline  5/5
+108/108 passed

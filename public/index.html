@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Paletta｜数学の学び方を、自分の色に。</title>
+  <meta name="description" content="Paletta（パレッタ）は、数学の勉強方法を振り返り、自分に合った学び方を見つけるための無料Webアプリです（β版）。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paletta">
+  <meta property="og:title" content="Paletta｜数学の学び方を、自分の色に。">
+  <meta property="og:description" content="数学の勉強方法を振り返り、小さな工夫を試しながら、自分に合った学び方を見つける無料Webアプリ（β版）。">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="theme-color" content="#F8F6F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1A1918" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Paletta">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar" id="topbar"></header>
+    <main id="view" class="view" tabindex="-1"></main>
+  </div>
+
+  <nav class="tabbar" id="tabbar" aria-label="メインメニュー">
+    <a href="#/home" data-tab="home"><span class="ti" data-icon="home"></span>ホーム</a>
+    <a href="#/library" data-tab="library"><span class="ti" data-icon="cards"></span>ライブラリ</a>
+    <a href="#/note" data-tab="note"><span class="ti" data-icon="note"></span>ノート</a>
+    <a href="#/videos" data-tab="videos"><span class="ti" data-icon="play"></span>動画</a>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- 内容データ（ここを編集すると、問い・カード・動画が変わります） -->
+  <script src="data/config.js"></script>
+  <script src="data/videos.js"></script>
+  <script src="data/cards.js"></script>
+  <script src="data/navi.js"></script>
+  <script src="data/reflect.js"></script>
+
+  <!-- アプリ本体 -->
+  <script src="js/app.js"></script>
+</body>
+</html>

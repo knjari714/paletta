@@ -1,0 +1,88 @@
+{
+  "app": "manabikata-note",
+  "exportedAt": "2026-10-23T14:30:17.029Z",
+  "version": 1,
+  "plans": [
+    {
+      "id": "mvl2h41ih77iw",
+      "cardId": "close-and-reproduce",
+      "title": "解説を閉じて、もう一度書く",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-review-next",
+      "answers": [
+        {
+          "q": "問題が解けないとき、いちばん近いのはどれですか？",
+          "a": "解説を読むとわかるのに、似た問題が出るとまた解けない"
+        },
+        {
+          "q": "解説を読んで「わかった」と思ったあと、どうしていますか？",
+          "a": "納得したら、次の問題へ進む"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "宿題に少し足せるくらい"
+        }
+      ],
+      "subject": "数学Ⅱ",
+      "material": "問題集",
+      "startedAt": "2026-10-23T14:30:09.846Z",
+      "status": "closed",
+      "reflections": [
+        {
+          "at": "2026-10-23T14:30:12.213Z",
+          "done": "done",
+          "reasons": [],
+          "feasibility": 2,
+          "effect": 0,
+          "note": "解説を閉じると、最初の一行が書けなかった",
+          "next": "adjust",
+          "adjustNote": "×の問題だけにする"
+        },
+        {
+          "at": "2026-10-23T14:30:13.228Z",
+          "done": "notyet",
+          "reasons": [
+            "時間がとれなかった"
+          ],
+          "feasibility": null,
+          "effect": null,
+          "note": "",
+          "next": "other",
+          "adjustNote": ""
+        }
+      ],
+      "adjustNote": "×の問題だけにする",
+      "closedReason": "other",
+      "closedAt": "2026-10-23T14:30:13.228Z"
+    },
+    {
+      "id": "mvl2h7s843vtg",
+      "cardId": "retry-later",
+      "title": "間違えた問題を、日を置いて解き直す",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-review-next",
+      "answers": [
+        {
+          "q": "問題が解けないとき、いちばん近いのはどれですか？",
+          "a": "解説を読むとわかるのに、似た問題が出るとまた解けない"
+        },
+        {
+          "q": "解説を読んで「わかった」と思ったあと、どうしていますか？",
+          "a": "納得したら、次の問題へ進む"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "宿題に少し足せるくらい"
+        }
+      ],
+      "subject": "",
+      "material": "",
+      "startedAt": "2026-10-23T14:30:14.696Z",
+      "status": "active",
+      "reflections": []
+    }
+  ],
+  "activePlanId": "mvl2h7s843vtg"
+}

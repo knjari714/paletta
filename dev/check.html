@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>データ確認（開発用）</title>
+  <style>
+    :root { --bg:#f6f4ef; --surface:#fff; --ink:#1f2328; --muted:#646a72; --line:#e2ded5; --accent:#2f6f62; --soft:#e2efea; --bad:#b3261e; --badsoft:#fbe9e7; --warn:#8a5a00; --warnsoft:#fff4d6; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#15171a; --surface:#1f2226; --ink:#eceef0; --muted:#a3a9b1; --line:#33383e; --accent:#7cc2b0; --soft:#23352f; --bad:#ff8a80; --badsoft:#3a1f1d; --warn:#ffcc66; --warnsoft:#3a3220; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",Meiryo,system-ui,sans-serif; line-height:1.7; font-size:15px; }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 18px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+    h3 { font-size: 16px; margin: 0 0 8px; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .box { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+    .box + .box { margin-top: 10px; }
+    .ok { background:var(--soft); border-color:transparent; }
+    .err { background:var(--badsoft); border-color:transparent; color:var(--bad); }
+    .warn { background:var(--warnsoft); border-color:transparent; color:var(--warn); }
+    ul.plain { margin:4px 0 0; padding-left: 1.2em; }
+    .q1 { margin-top: 24px; }
+    .q1 > .label { font-weight:700; font-size: 16px; }
+    .q2text { margin: 2px 0 10px; color: var(--muted); font-size: 14px; }
+    .branch { display:grid; grid-template-columns: 1fr; gap: 6px; padding: 12px 14px; border-left: 4px solid var(--accent); background:var(--surface); border-radius: 0 10px 10px 0; }
+    .branch + .branch { margin-top: 8px; }
+    .branch .opt { font-weight: 700; }
+    .branch .row { display:flex; gap:10px; font-size:14px; }
+    .branch .k { flex:none; width: 6.5em; color: var(--muted); font-size: 12px; padding-top: 2px; }
+    .chip { display:inline-block; font-size:12px; padding:1px 8px; margin:0 4px 4px 0; border-radius:6px; background:var(--soft); color:var(--accent); }
+    .chip.bad { background:var(--badsoft); color:var(--bad); }
+    .chip.cat-study { background:#E9F1FF; color:#315EA8; } .chip.cat-math { background:#E7F4EA; color:#287848; } .chip.cat-others { background:#FFF0E1; color:#A35A1C; }
+    @media (prefers-color-scheme: dark) { .chip.cat-study { background:#1E2733; color:#8FB6F2; } .chip.cat-math { background:#1C2B22; color:#86CFA0; } .chip.cat-others { background:#33261B; color:#EFAA6E; } }
+    code { font-size: 12px; background: var(--line); padding: 0 4px; border-radius: 4px; }
+    table { width:100%; border-collapse: collapse; font-size: 13px; background:var(--surface); }
+    th, td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; }
+    td.n { text-align: center; }
+    button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); cursor: pointer; }
+    textarea { width:100%; height: 240px; font: 12px/1.6 ui-monospace, Menlo, monospace; margin-top: 8px; background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px; }
+    @media (min-width: 720px) { .branch .k { width: 8em; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>データ確認（開発用）</h1>
+  <p class="muted">public/data/ フォルダの内容を読み込み、分岐やカードの参照に誤りがないかを確認します。生徒向けの画面ではありません。<br>
+  data/ のファイルを書き換えたら、このページを再読み込みしてください。<a href="../public/">アプリを開く</a></p>
+
+  <div id="out"><div class="box err">データを読み込めませんでした。data/ のファイルに書き間違い（カンマや " の抜けなど）がある可能性があります。</div></div>
+</main>
+
+<script>
+  // データの書き間違いでスクリプトが止まったときに、どのファイルかを表示する
+  window.__loadErrors = [];
+  window.addEventListener("error", e => { window.__loadErrors.push((e.filename || "").split("/").pop() + " の " + e.lineno + " 行目付近：" + e.message); });
+</script>
+<script src="../public/data/config.js"></script>
+<script src="../public/data/videos.js"></script>
+<script src="../public/data/cards.js"></script>
+<script src="../public/data/navi.js"></script>
+<script src="../public/data/reflect.js"></script>
+<script>
+(function () {
+  const out = document.getElementById("out");
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+  const files = [["config.js", "APP_CONFIG"], ["videos.js", "VIDEOS"], ["cards.js", "CARDS"], ["navi.js", "NAVI"], ["reflect.js", "REFLECT"]];
+  const missing = files.filter(([, g]) => !window[g]).map(([f]) => f);
+  if (missing.length) {
+    const detail = window.__loadErrors.filter(m => !/^ の 0 行目|Script error/.test(m));
+    out.innerHTML = `<div class="box err"><b>データを読み込めませんでした。</b><ul class="plain">${
+      missing.map(f => `<li>data/${esc(f)} に書き間違いがあります。</li>`).join("")}${
+      detail.map(m => `<li>${esc(m)}</li>`).join("")}</ul>
+      <p style="margin:8px 0 0">カンマ（,）や引用符（"）の抜け・重複がないか確認してください。</p></div>`;
+    return;
+  }
+
+  const N = window.NAVI, C = window.CARDS, V = window.VIDEOS, CFG = window.APP_CONFIG || {};
+  const CATS = CFG.categories || {}, MODES = CFG.modes || {};
+  const cardIds = new Set(C.map(c => c.id));
+  const videoIds = new Set(V.map(v => v.id));
+  const cardById = id => C.find(c => c.id === id);
+  const errors = [], warns = [];
+  const used = {}, usedOthers = {};
+  C.forEach(c => used[c.id] = 0);
+
+  // カード
+  const seen = new Set();
+  const required = ["id", "type", "title", "catch", "when", "what", "steps", "burden", "burdenNote", "check"];
+  C.forEach((c, i) => {
+    if (seen.has(c.id)) errors.push(`cards.js：id「${c.id}」が重複しています。`);
+    seen.add(c.id);
+    required.forEach(k => { if (c[k] == null || c[k] === "" || (Array.isArray(c[k]) && !c[k].length)) errors.push(`cards.js：「${c.id || (i + 1) + "枚目"}」に ${k} がありません。`); });
+    if (![1, 2, 3].includes(c.burden)) errors.push(`cards.js：「${c.id}」の burden は 1・2・3 のどれかにしてください。`);
+    if (!["change", "start"].includes(c.type)) errors.push(`cards.js：「${c.id}」の type は "change" か "start" にしてください。`);
+    (c.videos || []).forEach(v => { if (!videoIds.has(v)) errors.push(`cards.js：「${c.id}」の動画「${v}」が videos.js にありません。`); });
+    if (c.category == null) warns.push(`cards.js：「${c.id}」に category がありません（種類の色・アイコンなしで表示されます）。`);
+    else if (!CATS[c.category]) errors.push(`cards.js：「${c.id}」の category「${c.category}」は、"${Object.keys(CATS).join('" / "')}" のどれかにしてください。`);
+    if (c.mode != null && !MODES[c.mode]) errors.push(`cards.js：「${c.id}」の mode「${c.mode}」は、"${Object.keys(MODES).join('" / "')}" のどれかにしてください。`);
+    if (c.category === "math" && !c.easyStart) warns.push(`cards.js：「${c.id}」（数学の考え方を活かす）に easyStart（ここまででもOK）がありません。`);
+    if (c.category === "others" && c.mode === "solo") warns.push(`cards.js：「${c.id}」は「他者の力を借りる」ですが、mode が "solo" です。`);
+    if (c.researchTags != null && !Array.isArray(c.researchTags)) errors.push(`cards.js：「${c.id}」の researchTags は ["...", "..."] の形で書いてください。`);
+  });
+
+  // 困り感・問い・結果
+  N.concerns.forEach(c => {
+    if (c.available && !N.questions[c.start]) errors.push(`navi.js：困り感「${c.label}」の start「${c.start}」という問いがありません。`);
+  });
+  const reached = new Set();
+  Object.entries(N.questions).forEach(([qid, q]) => {
+    if (!q.text) errors.push(`navi.js：問い「${qid}」に text がありません。`);
+    q.options.forEach((o, i) => {
+      if (!o.goto && !o.result) errors.push(`navi.js：問い「${qid}」の${i + 1}番目の選択肢に goto も result もありません。`);
+      if (o.goto && !N.questions[o.goto]) errors.push(`navi.js：問い「${qid}」の「${o.label}」の行き先「${o.goto}」という問いがありません。`);
+      if (o.result && !N.results[o.result]) errors.push(`navi.js：問い「${qid}」の「${o.label}」の結果「${o.result}」がありません。`);
+      if (o.goto) reached.add("q:" + o.goto);
+      if (o.result) reached.add("r:" + o.result);
+    });
+  });
+  Object.entries(N.results).forEach(([rid, r]) => {
+    if (!r.ask) errors.push(`navi.js：結果「${rid}」に自分への問い（ask）がありません。`);
+    if (!r.echo) warns.push(`navi.js：結果「${rid}」に echo がありません（選んだ答えがそのまま表示されます）。`);
+    const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+    if (ids.length < 2 || ids.length > 3) warns.push(`navi.js：結果「${rid}」の候補カードが ${ids.length} 枚です（2〜3枚を想定）。`);
+    if (new Set(ids).size !== ids.length) warns.push(`navi.js：結果「${rid}」で同じカードが重複しています。`);
+    ids.forEach(id => {
+      if (!cardIds.has(id)) errors.push(`navi.js：結果「${rid}」のカード「${id}」が cards.js にありません。`);
+      else { used[id]++; if (cardById(id).mode === "withOthers") warns.push(`navi.js：結果「${rid}」の候補に「誰かと取り組む」カード「${id}」があります（others に書くことを想定）。`); }
+    });
+    (r.others || []).forEach(id => {
+      if (!cardIds.has(id)) errors.push(`navi.js：結果「${rid}」の others「${id}」が cards.js にありません。`);
+      else { usedOthers[id] = (usedOthers[id] || 0) + 1; if (ids.includes(id)) warns.push(`navi.js：結果「${rid}」で「${id}」が cards と others の両方にあります。`); }
+    });
+    if (!reached.has("r:" + rid)) warns.push(`navi.js：結果「${rid}」は、どの選択肢からも使われていません。`);
+  });
+  Object.keys(N.questions).forEach(qid => {
+    const isStart = N.concerns.some(c => c.start === qid);
+    if (!isStart && !reached.has("q:" + qid)) warns.push(`navi.js：問い「${qid}」は、どこからも進めません。`);
+  });
+
+  // 表示
+  let html = "";
+  html += errors.length
+    ? `<div class="box err"><b>修正が必要な点（${errors.length}件）</b><ul class="plain">${errors.map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`
+    : `<div class="box ok"><b>参照の誤りはありません。</b> 問い ${Object.keys(N.questions).length}／結果 ${Object.keys(N.results).length}／カード ${C.length}／動画 ${V.length}</div>`;
+  if (warns.length) html += `<div class="box warn"><b>確認したほうがよい点（${warns.length}件）</b><ul class="plain">${warns.map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+
+  // 分岐一覧
+  html += `<h2>分岐の一覧</h2><p class="muted">Q1 → Q2 → 答えの受け止め・自分への問い → 候補カード の順に並べています。</p>`;
+  N.concerns.filter(c => c.available).forEach(con => {
+    const q1 = N.questions[con.start];
+    if (!q1) return;
+    html += `<h3>困り感：${esc(con.label)}</h3><div class="muted">Q1：${esc(q1.text)}</div>`;
+    q1.options.forEach((o1, i1) => {
+      const q2 = o1.goto ? N.questions[o1.goto] : null;
+      html += `<div class="q1"><div class="label">Q1-${i1 + 1}　${esc(o1.label)}</div>`;
+      if (q2) {
+        html += `<div class="q2text">Q2（<code>${esc(o1.goto)}</code>）：${esc(q2.text)}</div>`;
+        q2.options.forEach((o2, i2) => html += branchHtml(`${"ABCDEFGH"[i2]}. ${o2.label}`, o2.result));
+      } else if (o1.result) {
+        html += branchHtml("（Q1から直接）", o1.result);
+      }
+      html += `</div>`;
+    });
+  });
+
+  function branchHtml(label, rid) {
+    const r = N.results[rid];
+    if (!r) return `<div class="branch"><div class="opt">${esc(label)}</div><div class="row"><span class="chip bad">結果「${esc(rid)}」なし</span></div></div>`;
+    const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+    return `<div class="branch">
+      <div class="opt">${esc(label)} <code>${esc(rid)}</code></div>
+      <div class="row"><span class="k">受け止め</span><span>${esc(r.echo || "")}</span></div>
+      <div class="row"><span class="k">自分への問い</span><span><b>${esc(r.ask || "")}</b></span></div>
+      ${r.encourage ? `<div class="row"><span class="k">一言</span><span>${esc(r.encourage)}</span></div>` : ""}
+      <div class="row"><span class="k">つながり</span><span>${esc(r.lead || "")}</span></div>
+      <div class="row"><span class="k">候補</span><span>${ids.map(id => {
+        const c = cardById(id);
+        return c ? `<span class="chip cat-${esc(c.category || "")}">${esc(c.title)}（負担${c.burden}）</span>` : `<span class="chip bad">${esc(id)}：なし</span>`;
+      }).join("")}</span></div>
+      ${(r.others || []).length ? `<div class="row"><span class="k">誰かと</span><span>${r.others.map(id => {
+        const c = cardById(id);
+        return c ? `<span class="chip cat-${esc(c.category || "")}">${esc(c.title)}</span>` : `<span class="chip bad">${esc(id)}：なし</span>`;
+      }).join("")}</span></div>` : ""}
+    </div>`;
+  }
+
+  // カードの使われ方
+  const counts = Object.keys(CATS).map(k => `${esc(CATS[k].label)} ${C.filter(c => c.category === k).length}枚`).join("／");
+  html += `<h2>カードの一覧と使われ方</h2><p class="muted">${counts}。「候補」は候補の3枚に入る分岐の数、「誰かと」は「誰かと取り組む方法も見る」に出る分岐の数です。研究タグは生徒の画面には表示されません。</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>カード</th><th>種類</th><th>取り組み方</th><th>負担</th><th>ここまででもOK／余裕があれば</th><th>候補</th><th>誰かと</th><th>動画</th><th>研究タグ</th></tr></thead><tbody>${
+      C.map(c => `<tr><td>${esc(c.title)}<br><code>${esc(c.id)}</code></td><td><span class="chip cat-${esc(c.category || "")}">${esc(CATS[c.category] ? CATS[c.category].label : "（なし）")}</span></td><td>${esc(MODES[c.mode] || "")}</td><td class="n">${c.burden}</td><td>${c.easyStart ? "○" : "－"}／${c.extension ? "○" : "－"}</td><td class="n">${used[c.id] || (usedOthers[c.id] ? 0 : `<span style="color:var(--warn)">0</span>`)}</td><td class="n">${usedOthers[c.id] || ""}</td><td>${(c.videos || []).map(v => esc(v)).join(", ")}</td><td>${(c.researchTags || []).map(t => `<code>${esc(t)}</code>`).join(" ")}</td></tr>`).join("")
+    }</tbody></table></div>`;
+
+  // テキスト書き出し（ChatGPT などに貼る用）
+  let text = "";
+  N.concerns.filter(c => c.available).forEach(con => {
+    const q1 = N.questions[con.start]; if (!q1) return;
+    text += `【困り感】${con.label}\nQ1：${q1.text}\n`;
+    q1.options.forEach((o1, i1) => {
+      const q2 = N.questions[o1.goto];
+      text += `\n■Q1-${i1 + 1} ${o1.label}\n`;
+      if (!q2) return;
+      text += `  Q2：${q2.text}\n`;
+      q2.options.forEach((o2, i2) => {
+        const r = N.results[o2.result] || {};
+        const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+        text += `  ${"ABCDEFGH"[i2]}. ${o2.label}\n     受け止め：${r.echo || ""}\n     自分への問い：${r.ask || ""}\n${r.encourage ? `     一言：${r.encourage}\n` : ""}     つながり：${r.lead || ""}\n     候補：${ids.map(id => (cardById(id) || { title: id + "（なし）" }).title).join(" ／ ")}\n${(r.others || []).length ? `     誰かと：${r.others.map(id => (cardById(id) || { title: id + "（なし）" }).title).join(" ／ ")}\n` : ""}`;
+      });
+    });
+  });
+  html += `<h2>テキストで書き出す</h2><p class="muted">分岐の全体を、検討用にコピーできます。</p>
+    <button id="copy">コピー</button><textarea id="txt" readonly>${esc(text)}</textarea>`;
+
+  // カードの全文（文面の検討用）
+  let cardText = "";
+  Object.keys(CATS).concat([""]).forEach(k => {
+    const list = C.filter(c => (k ? c.category === k : !CATS[c.category]));
+    if (!list.length) return;
+    cardText += `\n＝＝＝ ${k ? CATS[k].label + "（" + CATS[k].en + "）" : "種類なし"} ＝＝＝\n`;
+    list.forEach(c => {
+      cardText += `\n【${c.title}】(${c.id})　負担${c.burden}・${MODES[c.mode] || ""}\n`
+        + `  一行：${c.catch}\n  こんなときに：${c.when}\n  何を変える？：${c.what}\n`
+        + `  やり方：\n${(c.steps || []).map((x, i) => `    ${i + 1}. ${x}`).join("\n")}\n`
+        + (c.note ? `  補足：${c.note}\n` : "")
+        + (c.easyStart ? `  ここまででもOK：${c.easyStart}\n` : "")
+        + (c.extension ? `  余裕があれば：${c.extension}\n` : "")
+        + `  確かめること：${c.check}\n  負担の補足：${c.burdenNote}\n`;
+    });
+  });
+  html += `<h2>カードの全文を書き出す</h2><p class="muted">カードの文面を、検討用にコピーできます。</p>
+    <button id="copy2">コピー</button><textarea id="txt2" readonly>${esc(cardText.trim())}</textarea>`;
+
+  out.innerHTML = html;
+  const copier = (btnId, taId) => document.getElementById(btnId).addEventListener("click", () => {
+    const t = document.getElementById(taId); t.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(
+      () => document.getElementById(btnId).textContent = "コピーしました",
+      () => { document.execCommand("copy"); document.getElementById(btnId).textContent = "コピーしました"; });
+  });
+  copier("copy", "txt");
+  copier("copy2", "txt2");
+})();
+</script>
+</body>
+</html>

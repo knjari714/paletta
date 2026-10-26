@@ -1,0 +1,17 @@
+{
+  "name": "Paletta",
+  "short_name": "Paletta",
+  "description": "数学の学び方を、自分の色に。数学の勉強方法を振り返り、自分に合った学び方を見つける無料Webアプリ（β版）。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F8F6F2",
+  "theme_color": "#F8F6F2",
+  "icons": [
+    { "src": "icons/icon-any-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-any-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>使い方｜Paletta</title>
+  <meta name="description" content="Paletta（パレッタ）の使い方。自分の数学の勉強を振り返り、小さな工夫を試し、振り返る方法を紹介します。">
+  <meta name="theme-color" content="#F8F6F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1A1918" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Paletta">
+  <meta property="og:title" content="使い方｜Paletta">
+  <meta property="og:description" content="Paletta（パレッタ）の使い方。自分の数学の勉強を振り返り、小さな工夫を試し、振り返る方法を紹介します。">
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <div class="page">
+    <header class="page-top">
+      <a class="back-link" href="./" data-back-to-app><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg><span>Palettaに戻る</span></a>
+      <a class="page-brand" href="./" aria-label="Paletta（アプリのホーム）">
+        <img class="mark" src="images/paletta-mark.png" alt="" width="30" height="27">
+        <picture>
+          <source srcset="images/paletta-wordmark-light.png" media="(prefers-color-scheme: dark)">
+          <img class="word" src="images/paletta-wordmark.png" alt="" width="74" height="17">
+        </picture>
+      </a>
+    </header>
+
+    <main id="main">
+      <h1>Palettaの使い方</h1>
+      <p class="lead">数学の学び方を、自分の色に。</p>
+      <p class="meta">Paletta v0.4.0 β</p>
+
+      <section aria-labelledby="intro">
+        <h2 id="intro" class="sr-only">はじめに</h2>
+        <p>数学の勉強を頑張っているのに、なかなか問題が解けるようにならない。そんな経験はありませんか？</p>
+        <p>数学ができるようになるためには、「何を勉強するか」だけでなく、「どう勉強するか」も大切です。</p>
+        <p>Paletta（パレッタ）は、自分の勉強を振り返り、いろいろな方法を試しながら、<strong>自分に合った数学の勉強法を見つけるためのアプリ</strong>です。</p>
+        <p>勉強法に、すべての人に当てはまる一つの正解があるわけではありません。</p>
+        <p>だからこそ、自分で選んで、小さく試して、少しずつ工夫していきましょう。</p>
+      </section>
+
+      <nav class="toc" aria-label="このページの目次">
+        <b>目次</b>
+        <ol>
+          <li><a href="#features">Palettaでできること</a></li>
+          <li><a href="#basic">基本の使い方</a></li>
+          <li><a href="#small-change">Small Changeって何？</a></li>
+          <li><a href="#note">私の勉強法ノートの使い方</a></li>
+          <li><a href="#records">学習記録について</a></li>
+          <li><a href="#faq">よくある質問</a></li>
+          <li><a href="#for-adults">先生・保護者の方へ</a></li>
+          <li><a href="#beta">Paletta β版について</a></li>
+        </ol>
+      </nav>
+
+      <section aria-labelledby="features">
+        <h2 id="features"><span class="num">1.</span>Palettaでできること</h2>
+        <p>Palettaには、主に4つの機能があります。</p>
+        <div class="feature-grid">
+          <div class="feature"><div class="fi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m15.3 8.7-2.1 4.5-4.5 2.1 2.1-4.5z"/></svg></div><h3>今の自分を見つめる</h3>
+            <p>数学の勉強で困っていることや、普段の勉強の仕方を振り返ります。いくつかの質問に答えると、今の自分に合いそうな勉強法が紹介されます。</p></div>
+          <div class="feature"><div class="fi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="7" width="12" height="13" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v11"/></svg></div><h3>Small Changeライブラリ</h3>
+            <p>数学の勉強に取り入れられる、小さな工夫を紹介しています。「解説を見る前に少し考える」「式と図を見比べる」など、普段の勉強に取り入れやすい方法を探せます。</p></div>
+          <div class="feature"><div class="fi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 3.5v17"/><path d="M12 8.5h4M12 12h4"/></svg></div><h3>私の勉強法ノート</h3>
+            <p>試してみようと思った勉強法や、実際に取り組んだ結果を記録できます。「自分に合っていた」「少し難しかった」「別の方法を試したい」など、振り返ったことを次の学習に生かせます。</p></div>
+          <div class="feature"><div class="fi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M10.3 8.9v6.2l4.9-3.1z"/></svg></div><h3>動画で学ぶ</h3>
+            <p>数学の勉強の仕方について、動画で紹介しています。教科書や問題集の使い方、理解の深め方、学習習慣など、気になるテーマから視聴できます。</p></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="basic">
+        <h2 id="basic"><span class="num">2.</span>基本の使い方</h2>
+        <p>Palettaは、次の4つのステップで使います。</p>
+        <ol class="steps">
+          <li>
+            <span class="si"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="m15.3 8.7-2.1 4.5-4.5 2.1 2.1-4.5z"/></svg></span>
+            <span class="step-no">STEP 1</span>
+            <h3>自分の勉強を振り返る</h3>
+            <p>ホーム画面の「今の自分を見つめる」からスタートします。</p>
+            <p>最近の宿題や問題集への取り組みを思い浮かべながら、質問に答えてみましょう。</p>
+            <p>正解・不正解はありません。自分に最も近いと思うものを選んでください。</p>
+          </li>
+          <li>
+            <span class="si"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="7" width="12" height="13" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v11"/></svg></span>
+            <span class="step-no">STEP 2</span>
+            <h3>勉強法を選ぶ</h3>
+            <p>回答をもとに、試せそうなSmall Changeが紹介されます。</p>
+            <p>気になるカードを開いて、どんな方法なのか確認しましょう。</p>
+            <p>試してみたい方法が見つかったら、「これを試してみる」を押します。次の画面で科目や教材を選び（どちらも任意）、「決めた」を押すと、その方法が自分の勉強法ノートに記録されます。</p>
+            <p>自分には合わないと思ったら、「ほかの方法も見てみる」から選び直しても大丈夫です。</p>
+          </li>
+          <li>
+            <span class="si"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+            <span class="step-no">STEP 3</span>
+            <h3>普段の勉強で試してみる</h3>
+            <p>選んだ方法を、いつもの数学の勉強に少しだけ取り入れてみましょう。</p>
+            <p>特別な勉強時間を増やさなくても構いません。宿題や問題集など、普段の学習の中で試せる方法もあります。</p>
+            <p>忙しい日や疲れている日に、無理をして取り組む必要はありません。</p>
+          </li>
+          <li>
+            <span class="si"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.5 12a7.5 7.5 0 0 1-12.9 5.2"/><path d="M4.5 12a7.5 7.5 0 0 1 12.9-5.2"/><path d="M17.6 3.6v3.6H14"/><path d="M6.4 20.4v-3.6H10"/></svg></span>
+            <span class="step-no">STEP 4</span>
+            <h3>試した結果を振り返る</h3>
+            <p>後日、Palettaを開いて、試した方法を振り返ってみましょう。</p>
+            <p>「続けやすさ」や「手ごたえ」などを整理できます。</p>
+            <p>うまくいかなかった場合も、それは失敗ではありません。</p>
+            <p>自分に合う勉強法を見つけるための、大切な情報です。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="small-change">
+        <h2 id="small-change"><span class="num">3.</span>Small Changeって何？</h2>
+        <p>Small Changeとは、<strong>普段の勉強方法に加える、小さな工夫</strong>のことです。</p>
+        <p>例えば、解説を読んで終わりにするのではなく、解説を閉じて最初の一手だけ再現してみる。</p>
+        <p>間違えた問題をすべて解き直すのではなく、次の勉強のときに一問だけ選んで解き直してみる。</p>
+        <p>そんな小さな変更から、自分の勉強方法を見直していきます。</p>
+        <p>Small Changeには、3つの種類があります。</p>
+
+        <div class="cat-sample cat-study">
+          <span class="cat-badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5.2a2.4 2.4 0 0 0-2.4 2.4 2.6 2.6 0 0 0-1.9 4.1 2.6 2.6 0 0 0 1.5 4.2A2.7 2.7 0 0 0 9 18.8a2 2 0 0 0 3-1.7V7.2a2 2 0 0 0-3-2Z"/><path d="M15 5.2a2.4 2.4 0 0 1 2.4 2.4 2.6 2.6 0 0 1 1.9 4.1 2.6 2.6 0 0 1-1.5 4.2 2.7 2.7 0 0 1-2.8 2.9 2 2 0 0 1-3-1.7V7.2a2 2 0 0 1 3-2Z"/></svg><span>BLUE｜学び方を工夫する</span></span>
+          <h3 class="sr-only">BLUE｜学び方を工夫する</h3>
+          <p>解説を見ずに思い出す、時間を空けて解き直す、自分のつまずきを振り返るなど、広く活用できる学習方法です。</p>
+        </div>
+        <div class="cat-sample cat-math">
+          <span class="cat-badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17 7V5H7l5.5 7L7 19h10v-2"/></svg><span>GREEN｜数学の考え方を活かす</span></span>
+          <h3 class="sr-only">GREEN｜数学の考え方を活かす</h3>
+          <p>異なる解き方を比べる、式と図をつなげる、答えを別の方法で確かめるなど、数学ならではの考え方を活かした学習方法です。</p>
+          <p class="easy-sample"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20v-7.5"/><path d="M12 12.5C12 9 9.7 6.5 5.5 6.5c0 3.5 2.3 6 6.5 6Z"/><path d="M12 14.5c0-3 2-5 5.5-5 0 3-2 5-5.5 5Z"/></svg><span>難しそうだと感じたら、「ここまででもOK」から始めてみましょう。</span></p>
+        </div>
+        <div class="cat-sample cat-others">
+          <span class="cat-badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M16 14.1a4.6 4.6 0 0 1 4.5 5.4"/></svg><span>ORANGE｜他者の力を借りる</span></span>
+          <h3 class="sr-only">ORANGE｜他者の力を借りる</h3>
+          <p>友達やクラスメイトと考え方を説明し合ったり、わからないところを質問にしたりする学習方法です。</p>
+          <p>一人で勉強する方法も、誰かと勉強する方法もあります。自分の状況に合わせて選んでください。</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="note">
+        <h2 id="note"><span class="num">4.</span>私の勉強法ノートの使い方</h2>
+        <p>Palettaでは、選んだSmall Changeを「私の勉強法ノート」に記録できます。</p>
+        <p>記録を残すことで、以前どんな勉強法を試したのか、どの方法が自分に合っていたのかを振り返れます。</p>
+        <p>振り返るときには、次の2つを分けて考えることを大切にしています。</p>
+        <div class="two-axes">
+          <div><b>続けやすさ</b><p>その勉強法を、普段の生活や学習の中に取り入れやすかったか。</p></div>
+          <div><b>手ごたえ</b><p>実際に取り組んでみて、学習に役立ちそうだと感じたか。</p></div>
+        </div>
+        <p>取り組みやすくても、すぐに手ごたえを感じられない方法もあります。反対に、役立ちそうでも、続けるのが難しい方法もあります。</p>
+        <p>自分にとってどんな方法が合っているのか、少しずつ見つけていきましょう。</p>
+      </section>
+
+      <section aria-labelledby="records">
+        <h2 id="records"><span class="num">5.</span>学習記録について</h2>
+        <p>Palettaでは、選んだ勉強法や振り返りの内容を、利用しているブラウザ内に保存します。</p>
+        <p>アカウント登録は必要ありません。また、現在のβ版には、学習記録を自動的に運営者へ送信する機能はありません。</p>
+        <p>ただし、次の点に注意してください。</p>
+        <div class="note-box">
+          <ul>
+            <li>ブラウザのデータを削除した場合や、利用環境によっては記録が消えることがあります。</li>
+            <li>別の端末やブラウザには、自動的に記録が引き継がれません。</li>
+            <li>共用端末では、ほかの人に記録を見られる可能性があります。</li>
+            <li>自由記述欄には、氏名や連絡先などの個人情報を書かないようにしてください。</li>
+          </ul>
+        </div>
+        <p>記録を残しておきたい場合は、「記録の保存と引き継ぎ」からファイルを書き出せます。保存したファイルを読み込むことで、記録を引き継ぐこともできます。</p>
+        <p>詳しくは、<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p>
+      </section>
+
+      <section aria-labelledby="faq" class="faq">
+        <h2 id="faq"><span class="num">6.</span>よくある質問</h2>
+        <details><summary>Q. Palettaは無料で使えますか？</summary><div class="ans"><p>はい。現在のβ版は無料で利用できます。</p></div></details>
+        <details><summary>Q. 毎日使う必要はありますか？</summary><div class="ans"><p>いいえ。数学の勉強で困ったときや、勉強方法を見直したいときに使ってください。</p></div></details>
+        <details><summary>Q. 紹介された勉強法を、必ず試さなければいけませんか？</summary><div class="ans"><p>いいえ。自分に合いそうな方法を選んでください。試してみて合わなければ、別の方法を選んでも構いません。</p></div></details>
+        <details><summary>Q. 「ここまででもOK」だけで終わっても大丈夫ですか？</summary><div class="ans"><p>はい。最初は小さく試すだけでも構いません。余裕があるときには、もう少し進んだ取り組みに挑戦してみましょう。</p></div></details>
+        <details><summary>Q. 数学の問題の答えも教えてもらえますか？</summary><div class="ans"><p>Palettaは、数学の問題を直接解説するアプリではありません。数学をどのように勉強するかを考えるためのアプリです。</p></div></details>
+        <details><summary>Q. 友達と一緒に使ってもよいですか？</summary><div class="ans"><p>もちろんです。一人で使うことを基本としていますが、友達と考え方を説明し合ったり、質問を考えたりする方法も紹介しています。</p></div></details>
+        <details><summary>Q. 学校の授業でも使えますか？</summary><div class="ans"><p>はい。授業や家庭学習など、教育目的で利用できます。ただし、学校で利用する場合は、各学校の端末利用や情報管理に関するルールに従ってください。</p></div></details>
+      </section>
+
+      <section aria-labelledby="for-adults">
+        <h2 id="for-adults"><span class="num">7.</span>先生・保護者の方へ</h2>
+        <p>Palettaは、学習者が自分の数学学習を振り返り、学習方法を主体的に選択・改善することを支援するために開発したWebアプリです。</p>
+        <p>学習科学や数学教育研究の知見を参考に、普段の学習に取り入れられる小さな工夫をSmall Changeとして整理しています。</p>
+        <p>ただし、特定の勉強法がすべての学習者に有効であることを保証するものではありません。</p>
+        <p>学習者自身が「試してみたい」「自分には合っていそう」「別の方法に変えてみたい」と判断する経験を大切にしています。</p>
+        <p>Palettaは、学校や家庭での学習指導に代わるものではなく、学習者の自学自習を補助するツールです。</p>
+      </section>
+
+      <section aria-labelledby="beta">
+        <h2 id="beta"><span class="num">8.</span>Paletta β版について</h2>
+        <p>Palettaは、個人が開発・運営している数学学習支援アプリです。特定の学校や教育委員会の公式サービスではありません。</p>
+        <p>現在はβ版として公開準備を進めており、今後、機能や内容を変更する場合があります。</p>
+        <p>利用してみて感じたことや改善のアイデアは、今後の開発に生かしていきたいと考えています。</p>
+        <p>ご意見・ご感想は、<a href="https://docs.google.com/forms/d/e/1FAIpQLSelMmzSaA0BG9F45TSxbpQJoN7o0RmerUH9RfRu2n4dPGYGBA/viewform" target="_blank" rel="noopener noreferrer" data-contact class="ext">お問い合わせ（Googleフォーム）<span class="sr-only">（Googleフォームが新しいタブで開きます）</span></a>からお寄せください。</p>
+      </section>
+
+      <div class="closing">
+        <p class="lead">数学の学び方を、自分の色に。</p>
+        <p>あなたに合った勉強方法を、少しずつ見つけていってください。</p>
+        <p><a class="btn" href="./" style="max-width:320px;margin:16px auto 0">Paletta をはじめる</a></p>
+      </div>
+    </main>
+
+    <footer class="page-foot">
+      <nav aria-label="Palettaの案内ページ">
+          <a href="./">Paletta</a>
+          <a href="howto.html" aria-current="page">使い方</a>
+          <a href="terms.html">利用規約</a>
+          <a href="privacy.html">プライバシーポリシー</a>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSelMmzSaA0BG9F45TSxbpQJoN7o0RmerUH9RfRu2n4dPGYGBA/viewform" target="_blank" rel="noopener noreferrer" data-contact>お問い合わせ<span class="sr-only">（Googleフォームが新しいタブで開きます）</span></a>
+      </nav>
+      <p id="offline-msg" class="offline-msg" hidden tabindex="-1" role="status">オフラインのため、お問い合わせフォームを開けません。インターネットに接続してから、もう一度お試しください。</p>
+      <p class="small">お問い合わせはGoogleフォーム（新しいタブ）で開きます。学習記録が送信されることはありません。</p>
+      <p class="small">Paletta v0.4.0 β｜開発・運営：新井健使</p>
+    </footer>
+  </div>
+  <script src="js/pages.js"></script>
+</body>
+</html>

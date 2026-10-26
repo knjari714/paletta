@@ -1,0 +1,77 @@
+{
+  "app": "manabikata-note",
+  "exportedAt": "2026-10-24T10:16:02.631Z",
+  "version": 1,
+  "plans": [
+    {
+      "id": "mvm8u2m59x1u2",
+      "cardId": "hide-one-step",
+      "title": "解答例を一部分だけ隠して考える",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-review-b",
+      "answers": [
+        {
+          "q": "問題を解こうとしたとき、どんなところで困ることが多い？",
+          "a": "解説を読むとわかるのに、自分では再現できない"
+        },
+        {
+          "q": "解説を読んで「わかった」と思った後、普段はどうしている？",
+          "a": "解説を見ながら、ノートに解き方を写す"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "宿題に少し足せるくらい"
+        }
+      ],
+      "ask": "解説を見ずに、どこまで再現できそう？",
+      "subject": "数学B",
+      "material": "",
+      "startedAt": "2026-10-24T10:15:58.397Z",
+      "status": "closed",
+      "reflections": [
+        {
+          "at": "2026-10-24T10:16:00.214Z",
+          "done": "done",
+          "reasons": [],
+          "feasibility": 3,
+          "effect": 2,
+          "note": "次の一操作だけなら考えられた",
+          "next": "other",
+          "adjustNote": ""
+        }
+      ],
+      "closedReason": "other",
+      "closedAt": "2026-10-24T10:16:00.214Z"
+    },
+    {
+      "id": "mvm8u51n6sfoy",
+      "cardId": "close-and-reproduce",
+      "title": "解説を閉じて、もう一度書く",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-review-b",
+      "answers": [
+        {
+          "q": "問題を解こうとしたとき、どんなところで困ることが多い？",
+          "a": "解説を読むとわかるのに、自分では再現できない"
+        },
+        {
+          "q": "解説を読んで「わかった」と思った後、普段はどうしている？",
+          "a": "解説を見ながら、ノートに解き方を写す"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "宿題に少し足せるくらい"
+        }
+      ],
+      "ask": "解説を見ずに、どこまで再現できそう？",
+      "subject": "",
+      "material": "",
+      "startedAt": "2026-10-24T10:16:01.547Z",
+      "status": "active",
+      "reflections": []
+    }
+  ],
+  "activePlanId": "mvm8u51n6sfoy"
+}

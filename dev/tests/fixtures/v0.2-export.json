@@ -1,0 +1,77 @@
+{
+  "app": "manabikata-note",
+  "exportedAt": "2026-10-24T01:13:31.215Z",
+  "version": 1,
+  "plans": [
+    {
+      "id": "mvlpgeznfrcbw",
+      "cardId": "notice-one-thing",
+      "title": "できたこと・困ったことを一つずつ見つける",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-unsure-e",
+      "answers": [
+        {
+          "q": "問題を解こうとしたとき、どんなところで困ることが多い？",
+          "a": "うまく説明できない・いろいろある"
+        },
+        {
+          "q": "今の自分に、一番近いのはどれ？",
+          "a": "自分でも、何に困っているのかよくわからない"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "自主学習の時間もとれる"
+        }
+      ],
+      "ask": "最近、数学で少しでも「できた」と感じた場面はあった？",
+      "subject": "数学A",
+      "material": "",
+      "startedAt": "2026-10-24T01:13:28.548Z",
+      "status": "closed",
+      "reflections": [
+        {
+          "at": "2026-10-24T01:13:29.131Z",
+          "done": "partly",
+          "reasons": [],
+          "feasibility": 3,
+          "effect": 2,
+          "note": "",
+          "next": "other",
+          "adjustNote": ""
+        }
+      ],
+      "closedReason": "other",
+      "closedAt": "2026-10-24T01:13:29.131Z"
+    },
+    {
+      "id": "mvlpggk4zw9iu",
+      "cardId": "mark-where-stuck",
+      "title": "手が止まった場所に印をつける",
+      "type": "change",
+      "concernId": "understand-but-cant-solve",
+      "resultId": "r-unsure-e",
+      "answers": [
+        {
+          "q": "問題を解こうとしたとき、どんなところで困ることが多い？",
+          "a": "うまく説明できない・いろいろある"
+        },
+        {
+          "q": "今の自分に、一番近いのはどれ？",
+          "a": "自分でも、何に困っているのかよくわからない"
+        },
+        {
+          "q": "この1週間、数学の勉強に使えそうな時間はどのくらいですか？",
+          "a": "自主学習の時間もとれる"
+        }
+      ],
+      "ask": "最近、数学で少しでも「できた」と感じた場面はあった？",
+      "subject": "",
+      "material": "",
+      "startedAt": "2026-10-24T01:13:30.580Z",
+      "status": "active",
+      "reflections": []
+    }
+  ],
+  "activePlanId": "mvlpggk4zw9iu"
+}
