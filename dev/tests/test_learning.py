@@ -9,7 +9,9 @@ URL=BASE+"public/"
 import json, subprocess
 from playwright.sync_api import sync_playwright
 data=json.loads(subprocess.check_output(["node","-e","global.window={};['config','videos','cards','navi','reflect'].forEach(f=>require(process.argv[1]+'/public/data/'+f+'.js'));console.log(JSON.stringify({N:window.NAVI,C:window.CARDS,CFG:window.APP_CONFIG,V:window.VIDEOS}))",ROOT]))
-N,C,CFG,V=data["N"],data["C"],data["CFG"],data["V"]; byId={c["id"]:c for c in C}
+N,C_ALL,CFG,V=data["N"],data["C"],data["CFG"],data["V"]; byId={c["id"]:c for c in C_ALL}
+# v0.5〜：Small Start カード（type: start）は別のテスト（test_smallstart.py）で確認する。ここでは Small Change の21枚を対象にする
+C=[c for c in C_ALL if c.get("type")!="start"]
 res=[]; errs=[]
 def check(cond_no,name,ok):
     res.append((cond_no,name,bool(ok)))
@@ -22,6 +24,8 @@ with sync_playwright() as p:
     W=lambda ms=250: pg.wait_for_timeout(ms)
     # ---------- library ----------
     pg.goto(URL+"#/library"); W()
+    check(2,"library 'すべて' shows 27 (21 Small Change + 6 Small Start)", pg.locator(".card-item").count()==27)
+    pg.click("button.kind-chip[data-v=change]"); W()
     titles=pg.locator(".card-item h3").all_inner_texts()
     check(2,"library shows 21 cards", len(titles)==21 and set(titles)=={c["title"] for c in C})
     check(1,"revised titles shown", "解説を見る前に、方針を30秒考える" in titles and "間違いが始まったところを探す" in titles and "違う節の問題を一問混ぜる" in titles)

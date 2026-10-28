@@ -31,6 +31,8 @@
     .branch .k { flex:none; width: 6.5em; color: var(--muted); font-size: 12px; padding-top: 2px; }
     .chip { display:inline-block; font-size:12px; padding:1px 8px; margin:0 4px 4px 0; border-radius:6px; background:var(--soft); color:var(--accent); }
     .chip.bad { background:var(--badsoft); color:var(--bad); }
+    .chip.cat-start { background:#F0EBF3; color:#665574; } .branch.start { border-left-color:#665574; }
+    @media (prefers-color-scheme: dark) { .chip.cat-start { background:#2F2836; color:#C9B6DA; } }
     .chip.cat-study { background:#E9F1FF; color:#315EA8; } .chip.cat-math { background:#E7F4EA; color:#287848; } .chip.cat-others { background:#FFF0E1; color:#A35A1C; }
     @media (prefers-color-scheme: dark) { .chip.cat-study { background:#1E2733; color:#8FB6F2; } .chip.cat-math { background:#1C2B22; color:#86CFA0; } .chip.cat-others { background:#33261B; color:#EFAA6E; } }
     code { font-size: 12px; background: var(--line); padding: 0 4px; border-radius: 4px; }
@@ -90,9 +92,16 @@
   // カード
   const seen = new Set();
   const required = ["id", "type", "title", "catch", "when", "what", "steps", "burden", "burdenNote", "check"];
+  const requiredStart = ["id", "type", "title", "catch", "when", "tryFirst", "easyStart", "rethink", "reflectQ"];
+  const isStartCard = c => c && c.type === "start";
   C.forEach((c, i) => {
     if (seen.has(c.id)) errors.push(`cards.js：id「${c.id}」が重複しています。`);
     seen.add(c.id);
+    if (isStartCard(c)) {   // Small Start カード
+      requiredStart.forEach(k => { if (c[k] == null || c[k] === "" || (Array.isArray(c[k]) && !c[k].length)) errors.push(`cards.js：Small Start「${c.id || (i + 1) + "枚目"}」に ${k} がありません。`); });
+      (c.videos || []).forEach(v => { if (!videoIds.has(v)) errors.push(`cards.js：「${c.id}」の動画「${v}」が videos.js にありません。`); });
+      return;
+    }
     required.forEach(k => { if (c[k] == null || c[k] === "" || (Array.isArray(c[k]) && !c[k].length)) errors.push(`cards.js：「${c.id || (i + 1) + "枚目"}」に ${k} がありません。`); });
     if (![1, 2, 3].includes(c.burden)) errors.push(`cards.js：「${c.id}」の burden は 1・2・3 のどれかにしてください。`);
     if (!["change", "start"].includes(c.type)) errors.push(`cards.js：「${c.id}」の type は "change" か "start" にしてください。`);
@@ -120,7 +129,24 @@
       if (o.result) reached.add("r:" + o.result);
     });
   });
+  // Small Start の分岐でたどり着く結果
+  const startResults = new Set();
+  N.concerns.filter(c => c.flow === "start" && c.available).forEach(con => {
+    const walk = (qid, depth) => { const q = N.questions[qid]; if (!q || depth > 5) return;
+      q.options.forEach(o => { if (o.result) startResults.add(o.result); if (o.goto) walk(o.goto, depth + 1); }); };
+    walk(con.start, 0);
+  });
   Object.entries(N.results).forEach(([rid, r]) => {
+    if (startResults.has(rid)) {
+      const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+      if (ids.length !== 3) warns.push(`navi.js：Small Start の結果「${rid}」のカードが ${ids.length} 枚です（3枚を想定）。`);
+      if (new Set(ids).size !== ids.length) warns.push(`navi.js：結果「${rid}」で同じカードが重複しています。`);
+      ids.forEach(id => {
+        if (!cardIds.has(id)) errors.push(`navi.js：結果「${rid}」のカード「${id}」が cards.js にありません。`);
+        else { used[id]++; if (!isStartCard(cardById(id))) warns.push(`navi.js：Small Start の結果「${rid}」に Small Change のカード「${id}」があります。`); }
+      });
+      return;
+    }
     if (!r.ask) errors.push(`navi.js：結果「${rid}」に自分への問い（ask）がありません。`);
     if (!r.echo) warns.push(`navi.js：結果「${rid}」に echo がありません（選んだ答えがそのまま表示されます）。`);
     const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
@@ -128,7 +154,7 @@
     if (new Set(ids).size !== ids.length) warns.push(`navi.js：結果「${rid}」で同じカードが重複しています。`);
     ids.forEach(id => {
       if (!cardIds.has(id)) errors.push(`navi.js：結果「${rid}」のカード「${id}」が cards.js にありません。`);
-      else { used[id]++; if (cardById(id).mode === "withOthers") warns.push(`navi.js：結果「${rid}」の候補に「誰かと取り組む」カード「${id}」があります（others に書くことを想定）。`); }
+      else { used[id]++; if (isStartCard(cardById(id))) warns.push(`navi.js：Small Change の結果「${rid}」に Small Start のカード「${id}」があります。`); if (cardById(id).mode === "withOthers") warns.push(`navi.js：結果「${rid}」の候補に「誰かと取り組む」カード「${id}」があります（others に書くことを想定）。`); }
     });
     (r.others || []).forEach(id => {
       if (!cardIds.has(id)) errors.push(`navi.js：結果「${rid}」の others「${id}」が cards.js にありません。`);
@@ -149,7 +175,7 @@
   if (warns.length) html += `<div class="box warn"><b>確認したほうがよい点（${warns.length}件）</b><ul class="plain">${warns.map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
 
   // 分岐一覧
-  html += `<h2>分岐の一覧</h2><p class="muted">Q1 → Q2 → 答えの受け止め・自分への問い → 候補カード の順に並べています。</p>`;
+  html += `<h2>分岐の一覧</h2><p class="muted">Small Change：Q1 → Q2 → 答えの受け止め・自分への問い → 候補カード。Small Start：Q1 → Q2 → 推薦3枚（おすすめ順）。</p>`;
   N.concerns.filter(c => c.available).forEach(con => {
     const q1 = N.questions[con.start];
     if (!q1) return;
@@ -159,7 +185,7 @@
       html += `<div class="q1"><div class="label">Q1-${i1 + 1}　${esc(o1.label)}</div>`;
       if (q2) {
         html += `<div class="q2text">Q2（<code>${esc(o1.goto)}</code>）：${esc(q2.text)}</div>`;
-        q2.options.forEach((o2, i2) => html += branchHtml(`${"ABCDEFGH"[i2]}. ${o2.label}`, o2.result));
+        q2.options.forEach((o2, i2) => html += (con.flow === "start" ? startBranchHtml : branchHtml)(`${"ABCDEFGH"[i2]}. ${o2.label}`, o2.result));
       } else if (o1.result) {
         html += branchHtml("（Q1から直接）", o1.result);
       }
@@ -167,6 +193,18 @@
     });
   });
 
+  function startBranchHtml(label, rid) {
+    const r = N.results[rid];
+    if (!r) return `<div class="branch"><div class="opt">${esc(label)}</div><div class="row"><span class="chip bad">結果「${esc(rid)}」なし</span></div></div>`;
+    const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+    return `<div class="branch start">
+      <div class="opt">${esc(label)} <code>${esc(rid)}</code></div>
+      <div class="row"><span class="k">推薦（順に）</span><span>${ids.map((id, i) => {
+        const c = cardById(id);
+        return c ? `<span class="chip cat-start">${i + 1}. ${esc(c.title)}</span>` : `<span class="chip bad">${esc(id)}：なし</span>`;
+      }).join("")}</span></div>
+    </div>`;
+  }
   function branchHtml(label, rid) {
     const r = N.results[rid];
     if (!r) return `<div class="branch"><div class="opt">${esc(label)}</div><div class="row"><span class="chip bad">結果「${esc(rid)}」なし</span></div></div>`;
@@ -189,10 +227,10 @@
   }
 
   // カードの使われ方
-  const counts = Object.keys(CATS).map(k => `${esc(CATS[k].label)} ${C.filter(c => c.category === k).length}枚`).join("／");
+  const counts = Object.keys(CATS).map(k => `${esc(CATS[k].label)} ${C.filter(c => !isStartCard(c) && c.category === k).length}枚`).join("／") + `／Small Start ${C.filter(isStartCard).length}枚`;
   html += `<h2>カードの一覧と使われ方</h2><p class="muted">${counts}。「候補」は候補の3枚に入る分岐の数、「誰かと」は「誰かと取り組む方法も見る」に出る分岐の数です。研究タグは生徒の画面には表示されません。</p>
     <div style="overflow-x:auto"><table><thead><tr><th>カード</th><th>種類</th><th>取り組み方</th><th>負担</th><th>ここまででもOK／余裕があれば</th><th>候補</th><th>誰かと</th><th>動画</th><th>研究タグ</th></tr></thead><tbody>${
-      C.map(c => `<tr><td>${esc(c.title)}<br><code>${esc(c.id)}</code></td><td><span class="chip cat-${esc(c.category || "")}">${esc(CATS[c.category] ? CATS[c.category].label : "（なし）")}</span></td><td>${esc(MODES[c.mode] || "")}</td><td class="n">${c.burden}</td><td>${c.easyStart ? "○" : "－"}／${c.extension ? "○" : "－"}</td><td class="n">${used[c.id] || (usedOthers[c.id] ? 0 : `<span style="color:var(--warn)">0</span>`)}</td><td class="n">${usedOthers[c.id] || ""}</td><td>${(c.videos || []).map(v => esc(v)).join(", ")}</td><td>${(c.researchTags || []).map(t => `<code>${esc(t)}</code>`).join(" ")}</td></tr>`).join("")
+      C.map(c => `<tr><td>${esc(c.title)}<br><code>${esc(c.id)}</code></td><td>${isStartCard(c) ? `<span class="chip cat-start">Small Start</span>` : `<span class="chip cat-${esc(c.category || "")}">${esc(CATS[c.category] ? CATS[c.category].label : "（なし）")}</span>`}</td><td>${esc(MODES[c.mode] || "")}</td><td class="n">${c.burden || "－"}</td><td>${c.easyStart ? "○" : "－"}／${c.extension ? "○" : "－"}</td><td class="n">${used[c.id] || (usedOthers[c.id] ? 0 : `<span style="color:var(--warn)">0</span>`)}</td><td class="n">${usedOthers[c.id] || ""}</td><td>${(c.videos || []).map(v => esc(v)).join(", ")}</td><td>${(c.researchTags || []).map(t => `<code>${esc(t)}</code>`).join(" ")}</td></tr>`).join("")
     }</tbody></table></div>`;
 
   // テキスト書き出し（ChatGPT などに貼る用）
@@ -208,6 +246,7 @@
       q2.options.forEach((o2, i2) => {
         const r = N.results[o2.result] || {};
         const ids = (r.cards || []).map(c => typeof c === "string" ? c : c && c.id);
+        if (con.flow === "start") { text += `  ${"ABCDEFGH"[i2]}. ${o2.label}\n     推薦：${ids.map((id, n) => (n + 1) + ". " + (cardById(id) || { title: id + "（なし）" }).title).join(" ／ ")}\n`; return; }
         text += `  ${"ABCDEFGH"[i2]}. ${o2.label}\n     受け止め：${r.echo || ""}\n     自分への問い：${r.ask || ""}\n${r.encourage ? `     一言：${r.encourage}\n` : ""}     つながり：${r.lead || ""}\n     候補：${ids.map(id => (cardById(id) || { title: id + "（なし）" }).title).join(" ／ ")}\n${(r.others || []).length ? `     誰かと：${r.others.map(id => (cardById(id) || { title: id + "（なし）" }).title).join(" ／ ")}\n` : ""}`;
       });
     });
@@ -217,8 +256,10 @@
 
   // カードの全文（文面の検討用）
   let cardText = "";
+  const plain = t => String(t || "").replace(/\*\*/g, "");
+  const richText = items => (items || []).map(it => typeof it === "string" ? `    ${plain(it)}` : it.ol ? it.ol.map((x, n) => `    ${n + 1}. ${plain(x)}`).join("\n") : it.ul ? it.ul.map(x => `    ・${plain(x)}`).join("\n") : "").join("\n");
   Object.keys(CATS).concat([""]).forEach(k => {
-    const list = C.filter(c => (k ? c.category === k : !CATS[c.category]));
+    const list = C.filter(c => !isStartCard(c) && (k ? c.category === k : !CATS[c.category]));
     if (!list.length) return;
     cardText += `\n＝＝＝ ${k ? CATS[k].label + "（" + CATS[k].en + "）" : "種類なし"} ＝＝＝\n`;
     list.forEach(c => {
@@ -231,6 +272,15 @@
         + `  確かめること：${c.check}\n  負担の補足：${c.burdenNote}\n`;
     });
   });
+  const sl = C.filter(isStartCard);
+  if (sl.length) {
+    cardText += `\n＝＝＝ Small Start ＝＝＝\n`;
+    sl.forEach(c => {
+      cardText += `\n【${c.title}】(${c.id})\n  一言説明：${plain(c.catch)}\n  こんなときに：${plain(c.when)}\n  まず試してみよう：\n${richText(c.tryFirst)}\n`
+        + `  ここまででもOK：${plain(c.easyStart)}\n  仕組みを見直すなら：\n${richText(c.rethink)}\n  振り返りの問い：${plain(c.reflectQ)}\n`
+        + (c.consult ? `  自分だけでは難しいときは：${plain(c.consult)}\n` : "");
+    });
+  }
   html += `<h2>カードの全文を書き出す</h2><p class="muted">カードの文面を、検討用にコピーできます。</p>
     <button id="copy2">コピー</button><textarea id="txt2" readonly>${esc(cardText.trim())}</textarea>`;
 

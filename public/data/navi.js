@@ -21,7 +21,10 @@
                     ライブラリへの案内が出ます。
       カードの中身は cards.js に書きます。
 
-   ※ 文面を直したら、check.html を開くと、分岐やカードidの誤りを確認できます。
+   Small Start（困り感 "no-time"、flow: "start"）は、Q1 → Q2 → 推薦3枚 の流れです。
+   結果には cards（3枚・おすすめ順）だけを書きます（echo / ask / lead は使いません）。
+
+   ※ 文面を直したら、dev/check.html を開くと、分岐やカードidの誤りを確認できます。
    ========================================================= */
 window.NAVI = {
 
@@ -35,10 +38,13 @@ window.NAVI = {
       available: true
     },
     {
+      // Small Start（ホームの「Small Start」からも、ここと同じ Q1 に進みます）
       id: "no-time",
-      label: "勉強したいけれど、時間も体力もない",
-      note: "Small Start（小さな一歩）を準備中です。",
-      available: false
+      label: "勉強したいけれど、時間や体力が足りない",
+      note: "Small Start：今の生活や勉強の進め方を、少し変える方法を探します。",
+      start: "start-q1",
+      flow: "start",      // Q1 → Q2 → 推薦3枚（自分への問い・時間の問いは出さない）
+      available: true
     }
   ],
 
@@ -116,10 +122,52 @@ window.NAVI = {
         { label: "わからないことが多すぎて、どこから取り組めばよいかわからない", result: "r-unsure-d" },
         { label: "自分でも、何に困っているのかよくわからない",                 result: "r-unsure-e" }
       ]
+    },
+
+    /* ===== Small Start ===== */
+    // Q1
+    "start-q1": {
+      text: "今、数学の勉強を進めるうえで、特に近い困り感は？",
+      options: [
+        { label: "勉強する時間がなかなか取れない",               goto: "start-time" },
+        { label: "時間はあっても、疲れて勉強する余力がない",     goto: "start-energy" },
+        { label: "時間も体力も、どちらも足りない",               goto: "start-both" }
+      ]
+    },
+
+    // Q2-A 時間が取れない
+    "start-time": {
+      text: "勉強する時間について、今のあなたに近いのは？",
+      options: [
+        { label: "学校・部活動・習い事などで、勉強に使える時間そのものが少ない",             result: "time-packed" },
+        { label: "塾・予備校や宿題などに時間を使い、自分で復習や演習をする余裕がない",       result: "time-assignments" },
+        { label: "短い時間はあるけれど、まとまった時間が取れない",                           result: "time-fragmented" },
+        { label: "日によって予定が違い、勉強する時間を決めにくい",                           result: "time-irregular" }
+      ]
+    },
+
+    // Q2-B 疲れて余力がない
+    "start-energy": {
+      text: "疲れて勉強できないとき、どんなことが多い？",
+      options: [
+        { label: "勉強する頃には疲れ切っていて、取り組めない",         result: "energy-exhausted" },
+        { label: "勉強を始めても、疲れて集中が続かない",               result: "energy-focus" },
+        { label: "休みたいけれど、勉強しないことが気になってしまう",   result: "energy-guilt" }
+      ]
+    },
+
+    // Q2-C 時間も体力も足りない
+    "start-both": {
+      text: "時間も体力も足りないとき、特に困っていることは？",
+      options: [
+        { label: "勉強する時間ができても、その頃には疲れ切っている",                         result: "both-exhausted" },
+        { label: "宿題や課題を終えるだけで精一杯で、復習や自分の勉強まで手が回らない",       result: "both-assignments" },
+        { label: "勉強時間を確保しようとすると、睡眠や休息の時間が減ってしまう",             result: "both-balance" }
+      ]
     }
   },
 
-  // ---------- 時間の問い（すべての結果の前に共通で聞く） ----------
+  // ---------- 時間の問い（Small Change の結果の前に共通で聞く。Small Start では聞かない） ----------
   // level の数字以下の負担（cards.js の burden）のカードに「比較的取り入れやすい」と印をつけます。
   // 印は参考情報です。カードが隠れたり、並び順が変わったりすることはありません。
   timeQuestion: {
@@ -288,6 +336,18 @@ window.NAVI = {
       encourage: "すぐに勉強法を変えなくても大丈夫です。まずは自分の様子に目を向けることが、大切な一歩です。",
       lead: "勉強法を変える前に、自分の様子に目を向けてみる方法です。",
       cards: ["notice-one-thing", "mark-where-stuck", "first-move"]
-    }
+    },
+
+    /* ===== Small Start（推薦3枚。書いた順＝おすすめの順。診断ではありません） ===== */
+    "time-packed":      { cards: ["start-rethink-study", "start-split-study",   "start-set-goal"] },
+    "time-assignments": { cards: ["start-rethink-study", "start-set-goal",      "start-split-study"] },
+    "time-fragmented":  { cards: ["start-split-study",   "start-rethink-study", "start-set-goal"] },
+    "time-irregular":   { cards: ["start-set-goal",      "start-split-study",   "start-change-timing"] },
+    "energy-exhausted": { cards: ["start-change-timing", "start-change-load",   "start-protect-rest"] },
+    "energy-focus":     { cards: ["start-change-load",   "start-protect-rest",  "start-change-timing"] },
+    "energy-guilt":     { cards: ["start-protect-rest",  "start-change-load",   "start-set-goal"] },
+    "both-exhausted":   { cards: ["start-change-load",   "start-change-timing", "start-protect-rest"] },
+    "both-assignments": { cards: ["start-rethink-study", "start-set-goal",      "start-protect-rest"] },
+    "both-balance":     { cards: ["start-protect-rest",  "start-rethink-study", "start-change-load"] }
   }
 };

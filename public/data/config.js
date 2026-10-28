@@ -12,9 +12,10 @@ window.APP_CONFIG = {
   appReading: "パレッタ",
   tagline: "数学の学び方を、自分の色に。",
   subTagline: "自分の勉強を振り返り、いろいろな方法を試しながら、自分に合った学び方を見つけるアプリです。",
-  version: "v0.4.0 β",
-  versionLabel: "Paletta v0.4.0 β",
-  operator: "新井健使",
+  version: "v0.5.2 β",
+  versionLabel: "Paletta v0.5.2 β",
+  operator: "新井健使",          // 利用規約・プライバシーポリシーの運営者表記
+  operatorEn: "Kenji ARAI",     // 画面下部の表記（Produced & Operated by …）
 
   // お問い合わせ（Googleフォーム。新しいタブで開きます）
   contactUrl: "https://docs.google.com/forms/d/e/1FAIpQLSelMmzSaA0BG9F45TSxbpQJoN7o0RmerUH9RfRu2n4dPGYGBA/viewform",
@@ -37,6 +38,15 @@ window.APP_CONFIG = {
     study:  { label: "学び方を工夫する",     en: "Study Skills",         desc: "思い出す・間を空ける・振り返るなど、学び方の工夫を数学に活かす方法。" },
     math:   { label: "数学の考え方を活かす", en: "Math Thinking",        desc: "比べる・表現をつなぐ・確かめるなど、数学ならではの取り組み方。" },
     others: { label: "他者の力を借りる",     en: "Learning with Others", desc: "説明し合う・質問するなど、人の力を借りる方法。できるときに選べば大丈夫です。" }
+  },
+
+  // Small Start（ライブラリの見出し・推薦画面・記録画面で使います。入口は「今の自分を見つめる」）
+  smallStart: {
+    label: "Small Start",
+    desc: "勉強したいけれど、時間も体力も足りない……。そんなとき、今の生活や勉強の進め方を少し変えてみよう。",
+    resultLead: "今の状況で試せそうな工夫です。上から順におすすめですが、どれを選んでも大丈夫です。",
+    sceneLabel: "どんな場面で試す？（任意）",
+    scenePlaceholder: "例：今日の数学の宿題で／部活動が休みの日に"
   },
 
   // 取り組み方（cards.js の mode）。一人でできるカードには表示しません。

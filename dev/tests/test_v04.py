@@ -45,7 +45,8 @@ with sync_playwright() as p:
                 check("contact",f"{f} contact new tab", c.get_attribute("target")=="_blank" and "noopener" in c.get_attribute("rel") and c.get_attribute("href")==FORM)
                 ids=pg.evaluate("[...document.querySelectorAll('.toc a')].map(a=>a.getAttribute('href').slice(1))")
                 check("pages",f"{f} toc anchors resolve", all(pg.locator(f"#{i}").count()==1 for i in ids))
-                check("pages",f"{f} meta shows version/date", ("v0.4.0" in pg.inner_text("body")) and (f=="howto.html" or "制定日：【公開日】" in pg.inner_text("main")))
+                check("pages",f"{f} meta shows version/date", (CFG["version"] in pg.inner_text("body")) and (f=="howto.html" or ("制定日：2026年11月2日" in pg.inner_text("main") and "【公開日】" not in pg.inner_text("main"))))
+                check("footer",f"{f} footer credit", "Produced & Operated by Kenji ARAI" in pg.inner_text(".page-foot") and "開発・運営" not in pg.inner_text(".page-foot"))
                 check("names",f"{f} no old names", not OLD.search(pg.inner_text("body")) and "Paletta" in pg.title())
         # TOC click scrolls to section
         pg.goto(URL+"howto.html"); pg.click(".toc a[href='#small-change']"); pg.wait_for_timeout(1200)
@@ -59,6 +60,8 @@ with sync_playwright() as p:
     check("howto","STEP2 mentions 決めた", "「決めた」を押すと、その方法が自分の勉強法ノートに記録されます" in t)
     check("howto","STEP4 uses 続けやすさ", "取り組みやすかったか" not in t and "「続けやすさ」や「手ごたえ」" in t)
     check("files","no HTML comments in public pages", all("<!--" not in open(ROOT+"/public/"+f).read() for f in PAGES))
+    check("howto","Small Start section & mentions", "ホーム画面の「Small Start」" not in t and all(x in t for x in ["「今の自分を見つめる」で「勉強したいけれど、時間や体力が足りない」を選び","Small Startって何？","時間や体力が足りないときに、今ある学習や生活の進め方を少し見直す機能","「試してみたか」と「今の自分に合っていそうか」","Small Change）と、時間や体力が足りないときの工夫（Small Start）"]))
+    check("howto","sections renumbered 1-9", [h.split(".")[0] for h in pg.locator("main h2 .num").all_inner_texts()]==[str(i) for i in range(1,10)])
     check("howto","4 steps", pg.locator(".steps > li").count()==4 and pg.locator(".steps .si svg").count()==4)
     check("howto","3 color samples", [pg.evaluate(f"getComputedStyle(document.querySelector('.cat-sample.cat-{k}')).borderLeftColor") for k in ("study","math","others")]==["rgb(49, 94, 168)","rgb(40, 120, 72)","rgb(163, 90, 28)"])
     check("howto","beta section has contact link", pg.locator("#beta ~ p a[data-contact], section[aria-labelledby=beta] a[data-contact]").count()>=1)
@@ -75,12 +78,14 @@ with sync_playwright() as p:
     tt=pg.inner_text("main")
     heads=pg.locator("main h2").all_inner_texts()
     check("terms","9 headings in order", [re.sub(r"^\d+\.","",h) for h in heads]==["概要","運営者情報","利用について","学習記録について","著作権・利用範囲","禁止事項","免責事項","サービスおよび規約の変更","準拠法"])
-    check("terms","operator & placeholder", "新井健使" in tt and "【公開日】" in tt and "個人開発・個人運営" in tt)
+    check("terms","operator & date", "新井健使" in tt and "2026年11月2日" in tt and "【公開日】" not in tt and "個人開発・個人運営" in tt)
     pg.goto(URL+"privacy.html"); pt=pg.inner_text("main")
     check("privacy","google forms reflected", "Googleフォーム" in pt and "Netlify Forms" not in pt)
     check("privacy","google policy link", pg.locator("a[href='https://policies.google.com/privacy?hl=ja']").count()>=1)
     check("privacy","localStorage/sessionStorage/SW", all(s in pt for s in ["localStorage","sessionStorage","Service Worker"]))
     check("privacy","no over-broad claim", "一切取得しない" not in pt)
+    check("privacy","v0.5.1 list items", all(x in pt for x in ["学習する科目や教材、工夫を試す場面（任意）","勉強方法や工夫を試した状況","続けやすさ・手ごたえ・自分との相性などについての振り返り"]) and all(x not in pt for x in ["学習した科目や教材（任意）","続けやすさや手ごたえについての振り返り"]))
+    check("privacy","date unchanged", pt.count("制定日：2026年11月2日")==2)
     check("privacy","device info item & no-reply-guarantee", "端末やブラウザなどの情報" in pt and "保証するものではありません" in pt)
     # JavaScriptなしでも読める
     ctxn=b.new_context(java_script_enabled=False); pn=ctxn.new_page()
@@ -110,7 +115,7 @@ with sync_playwright() as p:
     check("footer","4 links", fl.all_inner_texts()[:3]==["使い方","利用規約","プライバシーポリシー"] and "お問い合わせ" in fl.nth(3).inner_text())
     check("footer","data link kept", pg.locator("a[href='#/data']").count()==1)
     check("footer","link tap size >= 36px", min(pg.evaluate("[...document.querySelectorAll('.site-foot nav a')].map(a=>a.getBoundingClientRect().height)"))>=36)
-    check("footer","version & operator", "v0.4.0" in pg.inner_text(".site-foot") and "新井健使" in pg.inner_text(".site-foot"))
+    check("footer","version & operator", CFG["version"] in pg.inner_text(".site-foot") and "Produced & Operated by Kenji ARAI" in pg.inner_text(".site-foot") and "開発・運営" not in pg.inner_text(".site-foot"))
     # 名称：主な画面に旧名がない
     for h in ["#/home","#/library","#/note","#/videos","#/data","#/navi","#/card/first-move"]:
         pg.goto(URL+h); pg.wait_for_timeout(150)
@@ -175,7 +180,8 @@ with sync_playwright() as p:
     p3.evaluate("navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister())))")
     p3.reload(); p3.evaluate("navigator.serviceWorker.ready"); p3.wait_for_timeout(800)
     keys=p3.evaluate("caches.keys()")
-    check("pwa","old cache removed, new cache only", keys==["paletta-v0.4.0"])
+    CACHE=re.search(r'const CACHE = "([^"]+)"',open(ROOT+"/public/sw.js").read()).group(1)
+    check("pwa","old cache removed, new cache only", keys==[CACHE])
     p3.reload(); p3.wait_for_timeout(400)
     ctx3.set_offline(True)
     for f in PAGES:

@@ -1,28 +1,44 @@
 == 学習機能（v0.3 からの回帰テスト） ==
 page errors: []
-226/226 passed
+227/227 passed
 == カード詳細からの戻り ==
 errors []
 16/16 passed
-== v0.4 追加分 ==
+== v0.4 追加分（案内ページ・名称・PWA など） ==
 page errors: []
-  files    4/4
+  files    5/5
   pages    28/28
   contact  8/8
+  footer   7/7
   names    11/11
-  howto    15/15
+  howto    19/19
   faq      2/2
   a11y     1/1
   terms    2/2
-  privacy  5/5
+  privacy  7/7
   nojs     3/3
   dark     7/7
   logo     1/1
   first    2/2
-  footer   4/4
   data     1/1
   export   2/2
   compat   1/1
   pwa      6/6
   offline  5/5
-108/108 passed
+118/118 passed
+== Small Start ==
+page errors: []
+  entry    4/4
+  nav      6/6
+  q2       3/3
+  branch   41/41
+  cards    28/28
+  library  7/7
+  record   7/7
+  reflect  12/12
+  note     2/2
+  export   1/1
+  import   2/2
+  sc       4/4
+  layout   2/2
+119/119 passed

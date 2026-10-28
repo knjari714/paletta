@@ -1,5 +1,5 @@
 /* =========================================================
-   Paletta（パレッタ） v0.4.0 β — アプリ本体
+   Paletta（パレッタ） v0.5.2 β — アプリ本体
    ※ 保存キー（manabikata-*）は、過去の記録を引き継ぐため旧名のまま使っています。変更しないでください。
    内容（問い・カード・動画）は data/ フォルダのファイルにあります。
    記録は、使っている人の端末のブラウザ内（localStorage）にだけ保存されます。
@@ -107,9 +107,13 @@
      カードの種類（色・アイコン・表示名）
      --------------------------------------------------------- */
   const CAT_ICON = { study: "brain", math: "sigma", others: "people" };
-  const catKey = card => (card && CFG.categories && CFG.categories[card.category]) ? card.category : "";
-  const catClass = card => catKey(card) ? `cat-${catKey(card)}` : "cat-none";
+  /* Small Start（type: "start"）は3色の分類に入れず、独自の色（プラム）と芽のアイコンで示す */
+  const isStartCard = card => !!(card && card.type === "start");
+  const SS = CFG.smallStart || { label: "Small Start" };
+  const catKey = card => (card && !isStartCard(card) && CFG.categories && CFG.categories[card.category]) ? card.category : "";
+  const catClass = card => isStartCard(card) ? "cat-start" : (catKey(card) ? `cat-${catKey(card)}` : "cat-none");
   function catBadge(card) {
+    if (isStartCard(card)) return `<span class="cat-badge">${ic("sprout")}<span>${esc(SS.label)}</span></span>`;
     const k = catKey(card);
     if (!k) return "";
     return `<span class="cat-badge">${ic(CAT_ICON[k])}<span>${esc(CFG.categories[k].label)}</span></span>`;
@@ -135,7 +139,20 @@
     return `${n}日前`;
   }
 
+  /* 文中の **…** を太字にする（先にエスケープする） */
+  const fmt = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  /* Small Start の「まず試してみよう」など：文の並び（{ol:[]}・{ul:[]} も可） */
+  function richHtml(items) {
+    return (items || []).map(it => {
+      if (typeof it === "string") return `<p>${fmt(it)}</p>`;
+      if (it && it.ol) return `<ol>${it.ol.map(x => `<li>${fmt(x)}</li>`).join("")}</ol>`;
+      if (it && it.ul) return `<ul>${it.ul.map(x => `<li>${fmt(x)}</li>`).join("")}</ul>`;
+      return "";
+    }).join("");
+  }
+
   function burdenHtml(n) {
+    if (!n) return "";
     const label = ["", "小", "中", "大"][n] || "";
     let dots = "";
     for (let i = 1; i <= 3; i++) dots += i <= n ? "●" : '<span class="off">●</span>';
@@ -165,15 +182,15 @@
   /* 記録前の入力があるか（ホームへ移動するときに確認する） */
   function hasUnsaved() {
     const h = location.hash;
-    if (h.startsWith("#/reflect") && draft && (draft.done || draft.next || (draft.note || "").trim() || (draft.adjustNote || "").trim())) return true;
-    if (h.startsWith("#/plan/") && (planDraft.subject || planDraft.material)) return true;
+    if (h.startsWith("#/reflect") && draft && (draft.done || draft.next || draft.fit || (draft.note || "").trim() || (draft.adjustNote || "").trim())) return true;
+    if (h.startsWith("#/plan/") && (planDraft.subject || planDraft.material || (planDraft.scene || "").trim())) return true;
     return false;
   }
   function confirmLeave() {
     if (!hasUnsaved()) return true;
     if (!confirm("入力した内容は、まだ記録されていません。\n移動すると、入力した内容は消えます。よろしいですか？")) return false;
     draft = null;
-    planDraft = { subject: "", material: "" };
+    planDraft = { subject: "", material: "", scene: "" };
     return true;
   }
   function setTab(name) {
@@ -240,7 +257,7 @@
 
   /* 戻り先：開いた場所 → なければ候補画面（答えが残っていれば）→ ライブラリ */
   function returnFromCard() {
-    const naviReady = !!(navi && navi.resultId && navi.askSeen && navi.timeIdx != null);
+    const naviReady = !!(navi && navi.resultId && (naviIsStart() || (navi.askSeen && navi.timeIdx != null)));
     let o = cardOrigin;
     if (o && o.from === "navi" && !naviReady) o = null;
     if (!o) o = naviReady ? { from: "navi", hash: "#/navi", y: 0 } : { from: "library", hash: "#/library", y: 0 };
@@ -271,7 +288,7 @@
     if (plan) {
       const card = cardById(plan.cardId);
       const lastAt = plan.reflections.length ? plan.reflections[plan.reflections.length - 1].at : plan.startedAt;
-      const where = [plan.subject, plan.material].filter(Boolean).join("・");
+      const where = isStartCard(card) ? (plan.scene || "") : [plan.subject, plan.material].filter(Boolean).join("・");
       planHtml = `
         <div class="panel active-plan ${catClass(card)}">
           <div class="label">前回選んだ方法</div>
@@ -309,7 +326,7 @@
         </a>
         <a href="#/library">
           <span class="mi">${ic("cards")}</span>
-          <span><b>Small Change ライブラリ</b><span class="d">学び方の工夫・数学の考え方・人の力を借りる方法の一覧です。</span></span>
+          <span><b>ライブラリ</b><span class="d">Small Change（学び方の工夫・数学の考え方・人の力を借りる方法）と、Small Start の工夫の一覧です。</span></span>
           ${ic("chevron", "go")}
         </a>
         <a href="#/note">
@@ -337,7 +354,7 @@
           ${contactLinkHtml()}
         </nav>
         <p class="contact-note">お問い合わせはGoogleフォーム（新しいタブ）で開きます。学習記録が送信されることはありません。</p>
-        <p class="ver">${esc(CFG.versionLabel)}｜開発・運営：${esc(CFG.operator)}</p>
+        <p class="ver">${esc(CFG.versionLabel)}｜Produced &amp; Operated by ${esc(CFG.operatorEn || CFG.operator)}</p>
       </footer>`;
   }
 
@@ -351,12 +368,17 @@
     setTab(null);
     if (!navi || !navi.concernId) return viewConcern();
     if (navi.resume) return viewResume();
+    if (navi.resultId && naviIsStart()) return viewStartResult();   // Small Start：Q1 → Q2 → 推薦3枚
     if (navi.resultId && !navi.askSeen) return viewAsk();
     if (navi.resultId && navi.timeIdx == null) return viewTime();
     if (navi.resultId) return viewResult();
     return viewQuestion();
   }
 
+  const isStartConcern = id => { const c = concernById(id); return !!(c && c.flow === "start"); };
+  const naviIsStart = () => !!(navi && isStartConcern(navi.concernId));
+  const START_CONCERN = (NAVI.concerns.find(c => c.flow === "start") || {}).id;
+  const naviTitle = () => naviIsStart() ? SS.label : "今の自分を見つめる";
   const newNavi = concernId => ({ concernId, path: [], resultId: null, askSeen: false, timeIdx: null, picked: {} });
   const naviBackBtn = () => $top.insertAdjacentHTML("afterbegin", backBtnHtml("navi-back"));
   const progressHtml = (pct, label) =>
@@ -365,7 +387,7 @@
 
   /* 途中から再開するか、最初からやり直すか */
   function viewResume() {
-    setTop({ back: "#/home", title: "今の自分を見つめる" });
+    setTop({ back: "#/home", title: naviTitle() });
     const answers = naviAnswers();
     const concern = concernById(navi.concernId);
     render(`
@@ -425,7 +447,7 @@
     const q = NAVI.questions[qid];
     if (!q) { render(`<p class="empty">問い「${esc(qid)}」がデータにありません（navi.js を確認してください）。</p>`); return; }
     const stepNo = navi.path.length + 1;
-    setTop({ title: "今の自分を見つめる" });
+    setTop({ title: naviTitle() });
     naviBackBtn();
     const prevIdx = navi.picked ? navi.picked[qid] : undefined;
     const opts = q.options.map((o, i) =>
@@ -501,6 +523,32 @@
       </a>`;
   }
 
+  /* Small Start の推薦（3枚・おすすめ順。診断ではない） */
+  function viewStartResult() {
+    const res = NAVI.results[navi.resultId];
+    setTop({ title: SS.label });
+    naviBackBtn();
+    if (!res) { render(`<p class="empty">結果「${esc(navi.resultId)}」がデータにありません（navi.js を確認してください）。</p>`); return; }
+    const answers = naviAnswers().map(x => `<li><span class="q">${esc(x.q)}</span>${esc(x.a)}</li>`).join("");
+    const cards = resultCards(res);
+    render(`
+      <div class="panel link-panel" style="margin-top:4px">
+        <div class="small muted">あなたの答え</div>
+        <div class="link-answer">${esc(lastAnswerLabel())}</div>
+        <details class="all-answers">
+          <summary>答えた内容をすべて見る</summary>
+          <ul class="answers">${answers}</ul>
+        </details>
+      </div>
+      <p class="start-lead">${esc(SS.resultLead || "")}</p>
+      ${cards.map(c => cardItemHtml(c, null, "navi")).join("")}
+      <div class="btn-stack">
+        <a class="btn ghost" href="#/library" data-act="lib-open" data-v="start">ほかの方法も見る（ライブラリ）</a>
+        <button class="btn ghost" data-act="navi-restart">最初から答え直す</button>
+      </div>
+    `);
+  }
+
   function viewResult() {
     const res = NAVI.results[navi.resultId];
     setTop({ title: "今の自分を見つめる", step: "" });
@@ -570,6 +618,47 @@
     const same = plan && plan.cardId === card.id;
     const level = navi && navi.timeIdx != null ? NAVI.timeQuestion.options[navi.timeIdx].level : null;
     const vids = (card.videos || []).map(videoById).filter(Boolean);
+    const actionsHtml = `
+        <div class="btn-stack">
+          ${same
+            ? `<p class="notice" style="margin:0;text-align:center">この方法は、いま試しているところです。</p>`
+            : `<a class="btn" href="#/plan/${encodeURIComponent(card.id)}">これを試してみる</a>`}
+          <button class="btn sub quiet" data-act="card-return">ほかの方法も見てみる</button>
+          <p class="notice rechoose-note">自分に合いそうな方法を、選び直してもOK。</p>
+        </div>`;
+    if (isStartCard(card)) {
+      render(`
+      <article class="detail ${catClass(card)}">
+        <div class="detail-head">
+          ${catBadge(card)}
+          <h1>${esc(card.title)}</h1>
+          <p class="catch">${fmt(card.catch)}</p>
+        </div>
+        <div class="panel">
+          <dl>
+            <dt style="margin-top:0">こんなときに</dt><dd>${fmt(card.when)}</dd>
+            <dt>まず試してみよう</dt><dd class="rich">${richHtml(card.tryFirst)}</dd>
+          </dl>
+          ${card.easyStart ? `
+            <div class="extra easy">
+              <div class="extra-label">${ic("sprout")}ここまででもOK</div>
+              <p>${fmt(card.easyStart)}</p>
+            </div>` : ""}
+          <dl>
+            ${card.rethink ? `<dt>仕組みを見直すなら</dt><dd class="rich">${richHtml(card.rethink)}</dd>` : ""}
+            ${card.reflectQ ? `<dt>振り返りの問い</dt><dd>${fmt(card.reflectQ)}</dd>` : ""}
+          </dl>
+          ${card.consult ? `
+            <div class="extra consult">
+              <div class="extra-label">${ic("people")}自分だけでは難しいときは</div>
+              <p>${fmt(card.consult)}</p>
+            </div>` : ""}
+        </div>
+        ${vids.length ? `<div class="section-label">関連する勉強法動画</div>${vids.map(videoHtml).join("")}` : ""}
+        ${actionsHtml}
+      </article>`);
+      return;
+    }
     render(`
       <article class="detail ${catClass(card)}">
         <div class="detail-head">
@@ -619,7 +708,7 @@
   /* ---------------------------------------------------------
      試す準備（科目・教材は任意）
      --------------------------------------------------------- */
-  let planDraft = { subject: "", material: "" };
+  let planDraft = { subject: "", material: "", scene: "" };
 
   function viewPlanSetup(cardId) {
     const card = cardById(cardId);
@@ -627,6 +716,19 @@
     setTop({ back: "back", title: "試す準備" });
     if (!card) { render(`<p class="empty">この方法は見つかりませんでした。</p>`); return; }
     const prev = activePlan();
+    const prevNote = prev ? `<p class="notice" style="margin-top:22px">いま試している「${esc((cardById(prev.cardId) || prev).title)}」は、ここで区切りになります。これまでの記録はノートに残ります。</p>` : "";
+    if (isStartCard(card)) {
+      render(`
+      <h2 class="q-title">「${esc(card.title)}」を試します</h2>
+      <p class="q-hint">書かなくても記録できます。</p>
+      <label class="section-label" for="plan-scene" style="display:block;margin-top:8px">${esc(SS.sceneLabel || "")}</label>
+      <input type="text" id="plan-scene" maxlength="80" value="${esc(planDraft.scene || "")}" placeholder="${esc(SS.scenePlaceholder || "")}">
+      ${prevNote}
+      <div class="btn-stack">
+        <button class="btn" data-act="start-plan" data-id="${esc(card.id)}">決めた</button>
+      </div>`);
+      return;
+    }
     const chip = (kind, v) =>
       `<button class="chip ${planDraft[kind] === v ? "on" : ""}" data-act="chip" data-kind="${kind}" data-v="${esc(v)}">${esc(v)}</button>`;
     render(`
@@ -651,7 +753,9 @@
     const card = cardById(cardId);
     const prev = activePlan();
     if (prev) { prev.status = "closed"; prev.closedReason = "switched"; prev.closedAt = new Date().toISOString(); }
-    const fromNavi = navi && navi.resultId && navi.timeIdx != null;
+    const sceneEl = document.getElementById("plan-scene");
+    if (sceneEl) planDraft.scene = sceneEl.value;
+    const fromNavi = !!(navi && navi.resultId && (naviIsStart() || navi.timeIdx != null));
     const res = fromNavi ? NAVI.results[navi.resultId] : null;
     const plan = {
       id: uid(),
@@ -668,11 +772,12 @@
       status: "active",
       reflections: []
     };
+    if (isStartCard(card)) plan.scene = (planDraft.scene || "").trim();   // Small Start：試す場面（任意）
     store.plans.push(plan);
     store.activePlanId = plan.id;
     save();
     requestPersist();
-    planDraft = { subject: "", material: "" };
+    planDraft = { subject: "", material: "", scene: "" };
     resetNavi();
     location.replace("#/go");
   }
@@ -686,6 +791,30 @@
     setTop({ title: "" });
     if (!plan) return go("#/home");
     const card = cardById(plan.cardId) || plan;
+    if (isStartCard(card)) {
+      render(`
+      <div class="big-msg">
+        <div class="mark">${ic("sprout")}</div>
+        <h1>では、試してみよう。</h1>
+        <p>いつもの授業や宿題、毎日の生活の中で試してみてください。</p>
+      </div>
+      <div class="panel ${catClass(card)} go-card" style="margin-top:20px">
+        ${catBadge(card)}
+        <div style="font-weight:700;margin-top:4px">${esc(card.title)}</div>
+        ${plan.scene ? `<p class="small muted" style="margin:4px 0 0">試す場面：${esc(plan.scene)}</p>` : ""}
+        <div class="go-label">まず試してみよう</div>
+        <div class="rich">${richHtml(card.tryFirst)}</div>
+        ${card.easyStart ? `<div class="extra easy" style="margin-top:12px"><div class="extra-label">${ic("sprout")}ここまででもOK</div><p>${fmt(card.easyStart)}</p></div>` : ""}
+      </div>
+      <p class="notice" style="margin-top:14px">
+        この画面のスクリーンショットを撮っておくと、あとで見返せます。<br>
+        振り返りは、好きなときにホームやノートからできます。
+      </p>
+      <div class="btn-stack">
+        <a class="btn sub" href="#/home">ホームに戻る</a>
+      </div>`);
+      return;
+    }
     const where = plan.material ? `${plan.material}を開いて` : "いつもの教科書や問題集で";
     render(`
       <div class="big-msg">
@@ -740,7 +869,7 @@
      draft = { done, reasons[], feasibility, effect, note, next, adjustNote }
      --------------------------------------------------------- */
   function startDraft(preset) {
-    draft = Object.assign({ done: null, reasons: [], feasibility: null, effect: null, note: "", next: null, adjustNote: "" }, preset || {});
+    draft = Object.assign({ done: null, reasons: [], feasibility: null, effect: null, fit: null, note: "", next: null, adjustNote: "" }, preset || {});
   }
 
   function choiceGroup(key, def, multi) {
@@ -759,6 +888,7 @@
     if (!plan) return go("#/home");
     if (!draft) startDraft();
     const card = cardById(plan.cardId) || plan;
+    if (isStartCard(card) || plan.type === "start") return viewStartReflect(card);
     const tried = draft.done === "done" || draft.done === "partly";
     const notTried = draft.done === "notyet";
 
@@ -820,9 +950,74 @@
     window.scrollTo(0, y);
   }
 
+  /* Small Start の振り返り：「試してみた？」「合っていそう？」の2問＋ひとこと（任意）。
+     試せなかった理由・続けやすさ・手ごたえは聞かない。 */
+  function viewStartReflect(card) {
+    const RS = REFLECT.start;
+    let body = `
+      <div class="panel ${catClass(card)}" style="margin-top:4px">
+        <div class="small muted">振り返る方法</div>
+        <b>${esc(card.title)}</b>
+        ${card.reflectQ ? `<div class="small muted" style="margin-top:6px">振り返りの問い：${fmt(card.reflectQ)}</div>` : ""}
+      </div>
+
+      <h2 class="q-title" style="margin-top:24px">${esc(RS.tried.text)}</h2>
+      <div class="choices">${choiceGroup("done", RS.tried)}</div>
+
+      <h2 class="q-title" style="margin-top:28px">${esc(RS.fit.text)}</h2>
+      <div class="choices">${choiceGroup("fit", RS.fit)}</div>
+
+      <h2 class="q-title" style="margin-top:28px;font-size:17px">${esc(RS.note.text)}<span class="small muted">（任意）</span></h2>
+      <textarea id="r-note" rows="3" placeholder="${esc(RS.note.placeholder)}">${esc(draft.note)}</textarea>
+    `;
+    const ready = draft.done && draft.fit;
+    body += `
+      <div class="btn-stack" style="margin-top:24px">
+        <button class="btn" data-act="r-save" ${ready ? "" : "disabled"}>記録する</button>
+        ${ready ? "" : `<p class="notice" style="text-align:center;margin:0">選ぶところが残っています</p>`}
+      </div>
+    `;
+    const y = window.scrollY;
+    $view.innerHTML = `<div>${body}</div>`;
+    window.scrollTo(0, y);
+  }
+
+  function saveStartReflection(plan) {
+    const noteEl = document.getElementById("r-note");
+    if (noteEl) draft.note = noteEl.value.trim();
+    const r = { at: new Date().toISOString(), kind: "start", done: draft.done, fit: draft.fit, note: draft.note, next: null };
+    plan.reflections.push(r);
+    save();
+    requestPersist();
+    draft = null;
+    sessionStorage.setItem("manabikata-lastnext", "start");
+    sessionStorage.setItem("manabikata-lastplan", plan.id);
+    location.replace("#/reflected");
+  }
+
+  /* Small Start：記録した後に選ぶ次の行動 */
+  function startNext(planId, v) {
+    const plan = store.plans.find(p => p.id === planId);
+    if (!plan) return go("#/home");
+    const last = plan.reflections[plan.reflections.length - 1];
+    if (last && last.kind === "start") last.next = v;
+    if (v === "other" || v === "pause") {
+      if (plan.status === "active") { plan.status = "closed"; plan.closedReason = v; plan.closedAt = new Date().toISOString(); }
+      if (store.activePlanId === plan.id) store.activePlanId = null;
+    }
+    save();
+    if (v === "continue") { toast("同じ方法を、もう一度試してみましょう"); go("#/home"); return; }
+    if (v === "pause") { go("#/note"); return; }
+    // 別の方法を見る：前回の推薦（あれば）→ なければライブラリの Small Start
+    if (plan.resultId && NAVI.results[plan.resultId]) { navi = restoredNavi(plan); saveNavi(); go("#/navi"); }
+    else { libKind = "start"; libFilter = "all"; go("#/library"); }
+  }
+
   function saveReflection() {
     const plan = activePlan();
     if (!plan || !draft) return;
+    const pc = cardById(plan.cardId);
+    if (isStartCard(pc) || plan.type === "start") return saveStartReflection(plan);
     const noteEl = document.getElementById("r-note");
     const adjEl = document.getElementById("r-adjust");
     if (noteEl) draft.note = noteEl.value.trim();
@@ -867,6 +1062,19 @@
       other: ["記録しました。", "次に試す方法を選びましょう。"],
       pause: ["記録しました。", "ここで一区切りです。またいつでもどうぞ。"]
     };
+    if (next === "start") {
+      const RS = REFLECT.start;
+      render(`
+      <div class="big-msg">
+        <div class="mark">${ic("check")}</div>
+        <h1>記録しました。</h1>
+      </div>
+      <div class="section-label" style="text-align:center">${esc(RS.next.text)}</div>
+      <div class="btn-stack" style="margin-top:0">
+        ${RS.next.options.map((o, i) => `<button class="btn ${i === 0 ? "" : "sub"}" data-act="start-next" data-plan="${esc(planId || "")}" data-v="${esc(o.value)}">${esc(o.label)}</button>`).join("")}
+      </div>`);
+      return;
+    }
     const [h, p] = msgs[next] || msgs.pause;
     let actions = `<a class="btn sub" href="#/home">ホームに戻る</a>`;
     if (next === "other") {
@@ -890,23 +1098,40 @@
   /* ---------------------------------------------------------
      ライブラリ
      --------------------------------------------------------- */
-  let libFilter = "all";
+  let libFilter = "all";   // Small Change の3色の絞り込み（all / study / math / others）
+  let libKind = "all";     // すべて / Small Change / Small Start（all / change / start）
   function viewLibrary() {
     setTab("library");
-    setTop({ title: "Small Change ライブラリ", home: false });
+    setTop({ title: "ライブラリ", home: false });
     const cats = Object.keys(CFG.categories || {});
     if (libFilter !== "all" && !cats.includes(libFilter) && libFilter !== "none") libFilter = "all";
-    const groups = cats.map(k => ({ key: k, cards: CARDS.filter(c => catKey(c) === k) }));
-    const uncategorized = CARDS.filter(c => !catKey(c));
+    if (!["all", "change", "start"].includes(libKind)) libKind = "all";
+    const changeCards = CARDS.filter(c => !isStartCard(c));
+    const startCards = CARDS.filter(isStartCard);
+    const groups = cats.map(k => ({ key: k, cards: changeCards.filter(c => catKey(c) === k) }));
+    const uncategorized = changeCards.filter(c => !catKey(c));
     if (uncategorized.length) groups.push({ key: "none", cards: uncategorized });
 
-    const chips = [`<button class="chip ${libFilter === "all" ? "on" : ""}" data-act="lib-filter" data-v="all">すべて <span class="n">${CARDS.length}</span></button>`]
+    const kindChip = (v, label, n, icon) =>
+      `<button class="chip kind-chip ${v === "start" ? "cat-start" : ""} ${libKind === v ? "on" : ""}" data-act="lib-kind" data-v="${v}">${icon ? ic(icon) : ""}${esc(label)} <span class="n">${n}</span></button>`;
+    const kindChips = kindChip("all", "すべて", CARDS.length) + kindChip("change", "Small Change", changeCards.length) + kindChip("start", SS.label, startCards.length, "sprout");
+
+    const chips = []
       .concat(groups.map(g => {
         const label = g.key === "none" ? "その他" : CFG.categories[g.key].label;
         return `<button class="chip cat-chip cat-${g.key} ${libFilter === g.key ? "on" : ""}" data-act="lib-filter" data-v="${g.key}">${g.key !== "none" ? ic(CAT_ICON[g.key]) : ""}${esc(label)} <span class="n">${g.cards.length}</span></button>`;
       })).join("");
 
-    const shown = groups.filter(g => g.cards.length && (libFilter === "all" || libFilter === g.key));
+    const shown = libKind === "start" ? [] : groups.filter(g => g.cards.length && (libFilter === "all" || libFilter === g.key));
+    const showStart = startCards.length && (libKind === "start" || (libKind === "all" && libFilter === "all"));
+    const startGroup = showStart ? `
+        <section class="cat-group">
+          <div class="cat-head cat-start">
+            <span class="cat-icon">${ic("sprout")}</span>
+            <div><b>${esc(SS.label)}</b>${SS.desc ? `<span class="desc">${esc(SS.desc)}</span>` : ""}</div>
+          </div>
+          ${startCards.map(card => cardItemHtml(card, null, "library")).join("")}
+        </section>` : "";
     const body = shown.map(g => {
       const c = CFG.categories[g.key];
       return `
@@ -919,10 +1144,15 @@
         </section>`;
     }).join("");
 
+    const both = libKind === "all" && libFilter === "all";
     render(`
       <p class="q-hint" style="margin-top:4px">数学の勉強の仕方にも、いろいろな方法があります。今の勉強に足せそうなものを開いてみてください。</p>
-      <div class="chips lib-filter" role="group" aria-label="種類で絞り込む">${chips}</div>
+      <div class="chips lib-kind" role="group" aria-label="Small Change と Small Start の切り替え">${kindChips}</div>
+      ${libKind === "start" ? "" : `<div class="chips lib-filter" role="group" aria-label="Small Change の種類で絞り込む">${chips}</div>`}
+      ${both && shown.length ? `<div class="section-label lib-sec">Small Change</div>` : ""}
       ${body}
+      ${both && startGroup ? `<div class="section-label lib-sec">${esc(SS.label)}</div>` : ""}
+      ${startGroup}
     `);
   }
 
@@ -956,7 +1186,17 @@
       const card = cardById(p.cardId) || p;
       const isActive = p.status === "active" && store.activePlanId === p.id;
       const closedText = { switched: "別の方法へ", other: "別の方法へ", pause: "区切り" }[p.closedReason] || "区切り";
-      const refl = p.reflections.map(r => `
+      const RS = REFLECT.start;
+      const refl = p.reflections.map(r => (r.kind === "start") ? `
+        <div class="refl">
+          <div class="when">${esc(fmtDate(r.at))}の振り返り</div>
+          <ul>
+            <li><span class="k">試せた？</span>${esc(optLabel(RS.tried, r.done))}</li>
+            <li><span class="k">合っていそう？</span>${esc(optLabel(RS.fit, r.fit))}</li>
+            ${r.next ? `<li><span class="k">次は</span>${esc(optLabel(RS.next, r.next))}</li>` : ""}
+          </ul>
+          ${r.note ? `<div class="memo">${esc(r.note)}</div>` : ""}
+        </div>` : `
         <div class="refl">
           <div class="when">${esc(fmtDate(r.at))}の振り返り</div>
           <ul>
@@ -974,8 +1214,8 @@
       return `
         <details class="entry" data-id="${esc(p.id)}" ${isActive ? "open" : ""}>
           <summary>
-            <span class="status ${isActive ? "active" : "closed"}">${isActive ? "試している" : esc(closedText)}</span>${catKey(cardById(p.cardId)) ? `<span class="${catClass(cardById(p.cardId))} note-cat">${catBadge(cardById(p.cardId))}</span>` : ""}<h3>${esc(card.title)}</h3>
-            <div class="meta">${esc(fmtDate(p.startedAt))}に選択${p.subject ? `・${esc(p.subject)}` : ""}${p.material ? `・${esc(p.material)}` : ""}　振り返り ${p.reflections.length}回</div>
+            <span class="status ${isActive ? "active" : "closed"}">${isActive ? "試している" : esc(closedText)}</span>${(catKey(cardById(p.cardId)) || isStartCard(cardById(p.cardId))) ? `<span class="${catClass(cardById(p.cardId))} note-cat">${catBadge(cardById(p.cardId))}</span>` : ""}<h3>${esc(card.title)}</h3>
+            <div class="meta">${esc(fmtDate(p.startedAt))}に選択${p.subject ? `・${esc(p.subject)}` : ""}${p.material ? `・${esc(p.material)}` : ""}${p.scene ? `・${esc(p.scene)}` : ""}　振り返り ${p.reflections.length}回</div>
           </summary>
           <div class="body">
             ${refl || `<p class="small muted" style="margin:12px 0 0">まだ振り返りはありません。</p>`}
@@ -1136,6 +1376,11 @@
       case "open-navi": // href で #/navi へ。途中の答えがあれば、再開画面を出す
         if (naviHasProgress()) { navi.resume = true; saveNavi(); }
         break;
+      case "open-start": // href で #/navi へ。Small Start の Q1 から（途中の答えがあれば再開画面）
+        if (navi && navi.concernId === START_CONCERN && naviHasProgress()) navi.resume = true;
+        else { navi = newNavi(START_CONCERN); navi.entry = "home"; }   // ホームから入ったときは、Q1 の「戻る」でホームへ
+        saveNavi();
+        break;
       case "consult":
         if (naviHasProgress()) { navi.resume = true; saveNavi(); }
         if (location.hash === "#/navi") viewNavi(); else go("#/navi");
@@ -1150,7 +1395,13 @@
         el.setAttribute("aria-expanded", navi.showOthers ? "true" : "false");
         break;
       }
-      case "lib-open": libFilter = el.dataset.v || "all"; break; // href で #/library へ
+      case "lib-open": { // href で #/library へ
+        const v = el.dataset.v || "all";
+        if (v === "start") { libKind = "start"; libFilter = "all"; }
+        else if (v === "all") { libKind = "all"; libFilter = "all"; }
+        else { libKind = "change"; libFilter = v; }
+        break;
+      }
       case "card-return": returnFromCard(); break;
       case "contact": // 新しいタブでGoogleフォームを開く（学習記録は渡さない）。オフライン時は案内だけ出す
         if (navigator.onLine === false) {
@@ -1183,17 +1434,19 @@
         saveNavi(); viewNavi(); window.scrollTo(0, 0); break;
       }
       case "navi-back": {
-        if (navi.timeIdx != null) navi.timeIdx = null;                         // 候補 → 時間の問い
+        if (naviIsStart() && navi.resultId) { navi.resultId = null; navi.path.pop(); } // Small Start：推薦 → Q2
+        else if (navi.timeIdx != null) navi.timeIdx = null;                         // 候補 → 時間の問い
         else if (navi.resultId && navi.askSeen) navi.askSeen = false;         // 時間の問い → 自分への問い
         else if (navi.resultId) { navi.resultId = null; navi.path.pop(); }    // 自分への問い → Q2
         else if (navi.path.length) navi.path.pop();                           // Q2 → Q1
+        else if (navi.entry === "home") { resetNavi(); go("#/home"); break; } // Q1 → ホーム（ホームから入った場合）
         else navi = null;                                                     // Q1 → 困り感
         saveNavi();
         if (navi) viewNavi(); else viewConcern();
         window.scrollTo(0, 0);
         break;
       }
-      case "navi-restart": navi = newNavi(navi.concernId); saveNavi(); viewNavi(); break;
+      case "navi-restart": { const entry = navi.entry; navi = newNavi(navi.concernId); if (entry) navi.entry = entry; saveNavi(); viewNavi(); break; }
 
       /* 試す準備 */
       case "chip": {
@@ -1247,7 +1500,9 @@
       }
 
       /* ライブラリ・ノート */
-      case "lib-filter": libFilter = el.dataset.v; viewLibrary(); break;
+      case "lib-filter": libFilter = el.dataset.v; if (libFilter !== "all") libKind = "change"; viewLibrary(); break;
+      case "lib-kind": libKind = el.dataset.v; libFilter = "all"; viewLibrary(); break;
+      case "start-next": startNext(el.dataset.plan, el.dataset.v); break;
       case "note-subject": noteSubject = el.dataset.v; viewNote(); break;
       case "del-plan": {
         e.preventDefault();
@@ -1274,6 +1529,9 @@
     if (!draft) return;
     if (e.target.id === "r-note") draft.note = e.target.value;
     if (e.target.id === "r-adjust") draft.adjustNote = e.target.value;
+  });
+  document.addEventListener("input", e => {
+    if (e.target.id === "plan-scene") planDraft.scene = e.target.value;
   });
 
   document.addEventListener("change", e => {
@@ -1306,12 +1564,13 @@
     const path = restorePath(plan);
     const last = path[path.length - 1];
     const ok = last && NAVI.questions[last.qid].options[last.idx].result === plan.resultId;
+    const sf = isStartConcern(plan.concernId);   // Small Start には自分への問い・時間の問いがない
     return {
       concernId: plan.concernId,
       path: ok ? path : [],
       resultId: plan.resultId,
-      askSeen: true,
-      timeIdx: restoreTimeIdx(plan),
+      askSeen: !sf,
+      timeIdx: sf ? null : restoreTimeIdx(plan),
       picked: {},
       // 問いの文面が変わって道筋を再現できないときは、記録された答えをそのまま表示する
       savedAnswers: ok ? null : (plan.answers || [])

@@ -62,5 +62,43 @@ window.REFLECT = {
       { value: "other",    label: "別の方法を選ぶ" },
       { value: "pause",    label: "いったん区切る" }
     ]
+  },
+
+  /* =========================================================
+     Small Start の振り返り（選択式2問＋任意のひとこと）
+     ※ value は記録に保存されます。文面を直すときは label だけを変えてください。
+     ※ tried の value は Small Change の「実施状況」と同じ値（done / partly / notyet）を使います。
+     ========================================================= */
+  start: {
+    tried: {
+      text: "今回の工夫を試してみた？",
+      options: [
+        { value: "done",   label: "試せた" },
+        { value: "partly", label: "少し試せた" },
+        { value: "notyet", label: "まだ試せなかった" }
+      ]
+    },
+    fit: {
+      text: "この方法は、今の自分に合っていそう？",
+      options: [
+        { value: "fit",    label: "合っていそう" },
+        { value: "unsure", label: "まだわからない" },
+        { value: "unfit",  label: "合わなさそう" }
+      ]
+    },
+    note: {
+      text: "ひとこと",
+      placeholder: "気付いたことや、次に変えてみたいこと",
+      optional: true
+    },
+    // 記録した後に選ぶ次の行動
+    next: {
+      text: "次はどうする？",
+      options: [
+        { value: "continue", label: "同じ方法をもう一度試す" },
+        { value: "other",    label: "別の方法を見る" },
+        { value: "pause",    label: "学習ノートへ戻る／終了する" }
+      ]
+    }
   }
 };

@@ -1,5 +1,5 @@
 /* =========================================================
-   Paletta（パレッタ） v0.4.0 β スタイル
+   Paletta（パレッタ） v0.5.2 β スタイル
 
    色の考え方
    - アプリ全体：温かみのあるニュートラル＋落ち着いたプラムのアクセント（--accent）
@@ -436,3 +436,34 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 .site-foot nav a:hover { color: var(--accent); background: var(--surface-2); }
 .site-foot .contact-note { font-size: 11px; color: var(--muted); margin: 4px 0 0; line-height: 1.6; }
 .site-foot .ver { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+
+/* ---------- v0.5：Small Start ---------- */
+.cat-start  { --cat: var(--accent); --cat-soft: var(--accent-soft); }
+.menu a .mi.mi-start { background: var(--accent-soft); color: var(--accent); }
+.start-lead { margin: 18px 0 12px; }
+.detail dd.rich p, .go-card .rich p { margin: 0 0 6px; }
+.detail dd.rich p:last-child, .go-card .rich p:last-child { margin-bottom: 0; }
+.detail dd.rich ol, .detail dd.rich ul, .go-card .rich ol, .go-card .rich ul { margin: 6px 0 8px; padding-left: 1.4em; }
+.detail dd.rich li + li, .go-card .rich li + li { margin-top: 4px; }
+.extra.consult { background: var(--surface-2); }
+.extra.consult .extra-label { color: var(--ink); }
+.go-card .go-label { margin-top: 10px; font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--cat); }
+.go-card .rich { font-size: 15px; margin-top: 4px; }
+.lib-kind { margin-bottom: 8px; }
+.chip.kind-chip .ic { color: var(--accent); }
+.chip.kind-chip.cat-start.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.lib-sec { margin: 26px 0 0; font-size: 13px; letter-spacing: .06em; color: var(--ink); }
+/* ライブラリ：Small Change / Small Start の切り替え（3分割のボタン） */
+.chips.lib-kind {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface);
+  margin-bottom: 12px;
+}
+.chips.lib-kind .chip {
+  justify-content: center; border: 0; border-radius: 0; padding: 9px 4px; font-size: 13px;
+  background: transparent; min-height: 40px;
+}
+.chips.lib-kind .chip + .chip { border-left: 1.5px solid var(--line); }
+.chips.lib-kind .chip.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.chips.lib-kind .chip { white-space: nowrap; gap: 3px; padding: 9px 2px; }
+@media (max-width: 380px) { .chips.lib-kind .chip { font-size: 12px; } .chips.lib-kind .chip .ic { width: 14px; height: 14px; } }
