@@ -4,7 +4,7 @@
    → 内容を更新すると、次に開いたときに反映されます。
    ※ 公開のたびに CACHE の名前を変えると、古いキャッシュが確実に削除されます。
    ※ 外部サービス（Googleフォーム・YouTube）はキャッシュしません。 */
-const CACHE = "paletta-v0.5.2";
+const CACHE = "paletta-v0.5.2-20261031";
 const SHELL = [
   "./",
   "index.html",
